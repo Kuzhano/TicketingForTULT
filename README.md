@@ -106,9 +106,9 @@ Pastikan perangkat Anda sudah terpasang:
 | --- | --- | --- |
 | Beranda | `/` | Daftar laporan publik dari seluruh pengguna |
 | Buat Laporan | `/create` | Formulir pembuatan laporan kerusakan fasilitas |
-| Riwayat Tiket | `/<rute-riwayat>` | Riwayat tiket yang dibuat pengguna |
-| Detail Tiket | `/<rute-detail>` | Detail dan status sebuah tiket |
-| Profil | `/<rute-profil>` | Informasi dan pengaturan akun |
+| Riwayat Tiket | `/history` | Riwayat tiket yang dibuat pengguna |
+| Detail Tiket | `/ticket` | Detail dan status sebuah tiket |
+| Profil | `/profile` | Informasi dan pengaturan akun |
 
 ---
 
