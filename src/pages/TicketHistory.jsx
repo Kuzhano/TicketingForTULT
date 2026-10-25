@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, MapPin, CalendarDays, Paperclip } from 'lucide-react';
 
-// Data dummy (sementara, sebelum terhubung ke localStorage/backend)
 const dummyTickets = [
   {
     id: 'TKT-001',
