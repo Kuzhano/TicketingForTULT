@@ -16,7 +16,6 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       
-      {}
       <div className="md:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-20">
         <span className="font-bold text-red-600 text-lg">TULT-Fix</span>
         <button 
@@ -27,7 +26,6 @@ export default function Layout() {
         </button>
       </div>
 
-      {}
       {isOpen && (
         <div 
           className="fixed inset-0 bg-black/40 z-20 md:hidden"
@@ -35,26 +33,22 @@ export default function Layout() {
         />
       )}
 
-      {}
       <aside 
         className={`fixed md:static inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 px-4 py-6 transform transition-transform duration-200 ease-in-out ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } md:translate-x-0`}
       >
-        {}
         <div className="mb-8 px-3">
           <h1 className="text-xl font-bold text-gray-800">Ticketing TULT</h1>
           <p className="text-xs text-gray-400">Pelaporan Fasilitas Gedung TULT</p>
         </div>
 
-        {}
         <div className="mb-3 px-3">
           <span className="text-xs font-bold text-red-600 tracking-wide">
             Menu Utama
           </span>
         </div>
 
-        {}
         <nav className="space-y-1">
           {menus.map((item) => {
             const Icon = item.icon;
@@ -79,7 +73,6 @@ export default function Layout() {
         </nav>
       </aside>
 
-      {}
       <main className="flex-1 p-6">
         <Outlet />
       </main>
