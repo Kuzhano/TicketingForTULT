@@ -1,79 +1,164 @@
 import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { Home, PlusCircle, FolderClock, FileText, User, Menu, X } from 'lucide-react';
+import { 
+  Home, 
+  PlusCircle, 
+  FolderClock, 
+  FileText, 
+  Menu, 
+  X, 
+  Building2, 
+  ChevronRight 
+} from 'lucide-react';
 
 export default function Layout() {
   const [isOpen, setIsOpen] = useState(false);
 
+  // Menu utama (Profil sudah dipisah ke bawah)
   const menus = [
     { name: 'Beranda', path: '/', icon: Home },
     { name: 'Buat Laporan', path: '/create', icon: PlusCircle },
     { name: 'Riwayat Tiket', path: '/history', icon: FolderClock },
     { name: 'Detail Tiket', path: '/ticket/1', icon: FileText },
-    { name: 'Profil', path: '/profile', icon: User },
   ];
+
+  // Data pengguna untuk bagian bawah sidebar
+  const currentUser = {
+    name: 'Shiki',
+    nim: '103022400090',
+    // Menggunakan UI Avatars dengan warna merah senada (bisa diganti URL foto asli)
+    avatar: 'https://ui-avatars.com/api/?name=Shiki&background=dc2626&color=fff&bold=true',
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       
+      {/* Header Mobile */}
       <div className="md:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-20">
-        <span className="font-bold text-red-600 text-lg">TULT-Fix</span>
+        <div className="flex items-center gap-2.5">
+          <div className="bg-red-600 text-white p-1.5 rounded-lg">
+            <Building2 size={18} />
+          </div>
+          <span className="font-bold text-gray-800 text-base">Ticketing TULT</span>
+        </div>
         <button 
           onClick={() => setIsOpen(!isOpen)} 
-          className="text-gray-600 focus:outline-none p-1"
+          className="text-gray-600 focus:outline-none p-1 rounded-lg hover:bg-gray-100"
         >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
+      {/* Overlay gelap saat sidebar dibuka di HP */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/40 z-20 md:hidden"
+          className="fixed inset-0 bg-black/40 z-20 md:hidden backdrop-blur-xs"
           onClick={() => setIsOpen(false)}
         />
       )}
 
+      {/* Sidebar Navigasi Modern */}
       <aside 
-        className={`fixed md:static inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 px-4 py-6 transform transition-transform duration-200 ease-in-out ${
+        className={`fixed md:sticky md:top-0 inset-y-0 left-0 z-30 w-64 h-screen bg-white border-r border-gray-200 flex flex-col justify-between p-4 transform transition-transform duration-200 ease-in-out ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } md:translate-x-0`}
       >
-        <div className="mb-8 px-3">
-          <h1 className="text-xl font-bold text-gray-800">Ticketing TULT</h1>
-          <p className="text-xs text-gray-400">Pelaporan Fasilitas Gedung TULT</p>
+        {/* BAGIAN ATAS: Brand & Menu Navigasi */}
+        <div>
+          {/* Brand Header dengan Ikon Modern */}
+          <div className="flex items-center gap-3 px-2 py-3 mb-6 border-b border-gray-100">
+            <div className="bg-red-600 text-white p-2.5 rounded-xl shadow-xs shadow-red-200">
+              <Building2 size={22} />
+            </div>
+            <div>
+              <h1 className="text-base font-bold text-gray-900 leading-tight">
+                Ticketing TULT
+              </h1>
+              <p className="text-[11px] text-gray-400 font-medium mt-0.5">
+                Pelaporan Fasilitas Gedung
+              </p>
+            </div>
+          </div>
+
+          {/* Label Kategori */}
+          <div className="mb-2 px-3">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-red-600">
+              Menu Utama
+            </span>
+          </div>
+
+          {/* Daftar Menu */}
+          <nav className="space-y-1">
+            {menus.map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setIsOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-150 ${
+                      isActive
+                        ? 'bg-red-50 text-red-600 font-semibold shadow-2xs ring-1 ring-red-100'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium'
+                    }`
+                  }
+                >
+                  <Icon size={18} />
+                  <span>{item.name}</span>
+                </NavLink>
+              );
+            })}
+          </nav>
         </div>
 
-        <div className="mb-3 px-3">
-          <span className="text-xs font-bold text-red-600 tracking-wide">
-            Menu Utama
-          </span>
+        {/* BAGIAN BAWAH: Kartu Profil Pengguna */}
+        <div className="pt-3 border-t border-gray-100">
+          <NavLink
+            to="/profile"
+            onClick={() => setIsOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center justify-between p-2.5 rounded-xl transition-all duration-150 group ${
+                isActive
+                  ? 'bg-red-50 ring-1 ring-red-200'
+                  : 'hover:bg-gray-50 border border-transparent hover:border-gray-200'
+              }`
+            }
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              {/* Foto Profil + Indikator Online */}
+              <div className="relative shrink-0">
+                <img
+                  src={currentUser.avatar}
+                  alt={currentUser.name}
+                  className="w-10 h-10 rounded-full object-cover border border-red-100"
+                />
+                <span className="bottom-0 right-0 absolute w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>
+              </div>
+
+              {/* Nama & NIM */}
+              <div className="truncate">
+                <p className="text-sm font-bold text-gray-800 group-hover:text-red-600 transition-colors truncate">
+                  {currentUser.name}
+                </p>
+                <p className="text-xs text-gray-400 truncate">
+                  {currentUser.nim}
+                </p>
+              </div>
+            </div>
+
+            {/* Ikon Panah Kecil */}
+            <ChevronRight 
+              size={16} 
+              className="text-gray-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition-all shrink-0" 
+            />
+          </NavLink>
         </div>
 
-        <nav className="space-y-1">
-          {menus.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                onClick={() => setIsOpen(false)}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                    isActive
-                      ? 'bg-red-50 text-red-600 font-semibold'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`
-                }
-              >
-                <Icon size={18} />
-                <span>{item.name}</span>
-              </NavLink>
-            );
-          })}
-        </nav>
       </aside>
 
-      <main className="flex-1 p-6">
+      {/* Area Konten Utama */}
+      <main className="flex-1 p-6 md:p-8 overflow-y-auto">
         <Outlet />
       </main>
 
