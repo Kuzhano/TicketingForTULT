@@ -37,6 +37,7 @@ export default function Profile() {
     username: activeUser.username,
     prodi: activeUser.role === 'mahasiswa' ? 'S1 Rekayasa Perangkat Lunak' : 'Manajemen Gedung TULT',
     fakultas: activeUser.role === 'mahasiswa' ? 'Fakultas Informatika (FIF)' : 'Direktorat Aset & Logistik',
+    lastLogin: 'Hari ini, 09:42 WIB via SSO Telkom',
     stats: {
       total: 4,
       proses: 1,
@@ -182,6 +183,12 @@ export default function Profile() {
         </div>
 
         <div className="px-6 sm:px-8 py-4 bg-gray-50/40 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs text-slate-500">
+            <Clock size={15} className="text-slate-400 shrink-0" />
+            <span>
+              Terakhir masuk: <strong className="text-slate-700 font-semibold">{user.lastLogin}</strong>
+            </span>
+          </div>
 
           <button
             onClick={() => setShowModal(true)}
