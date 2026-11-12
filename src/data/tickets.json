@@ -1,0 +1,46 @@
+[
+  {
+    "id": "TKT-001",
+    "userId": "student-001",
+    "judul": "AC ruang kelas tidak dingin",
+    "lantai": "3",
+    "ruangan": "TULT.03.01",
+    "deskripsi": "AC menyala tetapi tidak mengeluarkan udara dingin.",
+    "namaFileBukti": "foto-ac.jpg",
+    "status": "Diproses",
+    "tanggal": "2026-10-20"
+  },
+  {
+    "id": "TKT-002",
+    "userId": "student-001",
+    "judul": "Lampu koridor mati",
+    "lantai": "2",
+    "ruangan": "TULT.02.05",
+    "deskripsi": "Dua lampu koridor tidak menyala sejak kemarin.",
+    "namaFileBukti": "lampu-koridor.png",
+    "status": "Selesai",
+    "tanggal": "2026-10-15"
+  },
+  {
+    "id": "TKT-003",
+    "userId": "student-002",
+    "judul": "Proyektor tidak menampilkan gambar",
+    "lantai": "4",
+    "ruangan": "TULT.04.05",
+    "deskripsi": "Proyektor menyala tetapi layar tetap kosong.",
+    "namaFileBukti": "Tidak ada file",
+    "status": "Menunggu",
+    "tanggal": "2026-10-22"
+  },
+  {
+    "id": "TKT-004",
+    "userId": "student-003",
+    "judul": "Keran air toilet bocor",
+    "lantai": "1",
+    "ruangan": "TULT.01.10",
+    "deskripsi": "Keran wastafel bocor dan air terus menetes.",
+    "namaFileBukti": "keran-bocor.jpg",
+    "status": "Diproses",
+    "tanggal": "2026-10-18"
+  }
+]
