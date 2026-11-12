@@ -6,6 +6,8 @@ import CreateTicket from './pages/CreateTicket';
 import TicketHistory from './pages/TicketHistory';
 import TicketDetail from './pages/TicketDetail';
 import Profile from './pages/Profile';
+import TicketTeknisi from './pages/TicketTeknisi';
+import TeknisiTaskDetail from './pages/TeknisiTaskDetail';
 
 export default function App() {
   return (
@@ -19,6 +21,8 @@ export default function App() {
           <Route path="history" element={<TicketHistory />} />
           <Route path="ticket/:id" element={<TicketDetail />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="teknisi" element={<TicketTeknisi />} />
+          <Route path="teknisi/:id" element={<TeknisiTaskDetail />} />
         </Route>
       </Routes>
     </BrowserRouter>

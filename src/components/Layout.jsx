@@ -55,7 +55,7 @@ export default function Layout() {
         : role === 'teknisi' 
           ? 'Tugas Perbaikan' 
           : 'Riwayat Tiket', 
-      path: '/history', 
+      path: role === 'teknisi' ? '/teknisi' : '/history',
       icon: role === 'admin' ? ShieldCheck : role === 'teknisi' ? Wrench : FolderClock, 
       show: true 
     },
