@@ -1,0 +1,65 @@
+[
+  {
+    "id": "tech-001",
+    "role": "teknisi",
+    "name": "Dimas Pratama",
+    "username": "dimas.pratama",
+    "password": "tech1"
+  },
+  {
+    "id": "tech-002",
+    "role": "teknisi",
+    "name": "Rizky Maulana",
+    "username": "rizky.maulana",
+    "password": "tech2"
+  },
+  {
+    "id": "tech-003",
+    "role": "teknisi",
+    "name": "Andi Saputra",
+    "username": "andi.saputra",
+    "password": "tech3"
+  },
+  {
+    "id": "admin-001",
+    "role": "admin",
+    "name": "Nadia Putri",
+    "username": "nadia.putri@example.com",
+    "password": "admin1"
+  },
+  {
+    "id": "admin-002",
+    "role": "admin",
+    "name": "Budi Santoso",
+    "username": "budi.santoso@example.com",
+    "password": "admin2"
+  },
+  {
+    "id": "admin-003",
+    "role": "admin",
+    "name": "Siti Rahmawati",
+    "username": "siti.rahmawati@example.com",
+    "password": "admin3"
+  },
+  {
+    "id": "student-001",
+    "role": "mahasiswa",
+    "name": "Fajar Nugraha",
+    "username": "fajar.nugraha@example.com",
+    "password": "student1"
+  },
+  {
+    "id": "student-002",
+    "role": "mahasiswa",
+    "name": "Alya Maharani",
+    "username": "alya.maharani@example.com",
+    "password": "student2"
+  },
+  {
+    "id": "student-003",
+    "role": "mahasiswa",
+    "name": "Reza Firmansyah",
+    "username": "reza.firmansyah@example.com",
+    "password": "student3"
+  }
+]
