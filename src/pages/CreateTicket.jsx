@@ -77,7 +77,7 @@ export default function CreateTicket() {
   };
 
   return (
-    <div className="max-w-2xl bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+    <div className="max-w-2xl mx-auto bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Buat Laporan Fasilitas</h2>
         <p className="text-gray-600 text-sm">Form untuk melaporkan kerusakan fasilitas di gedung TULT.</p>
