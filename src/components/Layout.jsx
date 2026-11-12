@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { 
   Home, 
@@ -8,28 +8,77 @@ import {
   Menu, 
   X, 
   Building2, 
-  ChevronRight 
+  ChevronRight,
+  Wrench,
+  ShieldCheck
 } from 'lucide-react';
-import usersData from '../data/users.json';
+import { fetchData } from '../utils/api';
 
 export default function Layout() {
   const [isOpen, setIsOpen] = useState(false);
+  const [allUsers, setAllUsers] = useState([]);
+  const [activeUser, setActiveUser] = useState(null);
+
+  useEffect(() => {
+    const loadActiveUser = async () => {
+      try {
+        const users = await fetchData('users');
+        setAllUsers(users);
+
+        const savedUser = JSON.parse(localStorage.getItem('activeUser'));
+        if (savedUser) {
+          setActiveUser(savedUser);
+        } else {
+          const defaultStudent = users.find((u) => u.role === 'mahasiswa') || users[0];
+          setActiveUser(defaultStudent);
+        }
+      } catch (error) {
+        console.error('Gagal memuat pengguna di sidebar:', error);
+      }
+    };
+
+    loadActiveUser();
+  }, []);
+
+  const handleQuickRoleSwitch = (targetRole) => {
+    const foundUser = allUsers.find((u) => u.role === targetRole);
+    if (foundUser) {
+      localStorage.setItem('activeUser', JSON.stringify(foundUser));
+      setActiveUser(foundUser);
+      window.dispatchEvent(new Event('userRoleChanged'));
+    }
+  };
+
+  const role = activeUser?.role || 'mahasiswa';
 
   const menus = [
-    { name: 'Beranda', path: '/', icon: Home },
-    { name: 'Buat Laporan', path: '/create', icon: PlusCircle },
-    { name: 'Riwayat Tiket', path: '/history', icon: FolderClock },
-    { name: 'Detail Tiket', path: '/ticket/1', icon: FileText },
-  ];
-
-  const savedUser = JSON.parse(localStorage.getItem('activeUser'));
-  const activeUser = savedUser || usersData.find((u) => u.role === 'mahasiswa') || usersData[0];
+    { name: 'Beranda Publik', path: '/', icon: Home, show: true },
+    { 
+      name: 'Buat Laporan', 
+      path: '/create', 
+      icon: PlusCircle, 
+      show: role === 'mahasiswa' 
+    },
+    { 
+      name: role === 'admin' 
+        ? 'Verifikasi Tiket' 
+        : role === 'teknisi' 
+          ? 'Tugas Perbaikan' 
+          : 'Riwayat Tiket', 
+      path: '/history', 
+      icon: role === 'admin' ? ShieldCheck : role === 'teknisi' ? Wrench : FolderClock, 
+      show: true 
+    },
+    { name: 'Detail Tiket', path: '/ticket/TKT-001', icon: FileText, show: true },
+  ].filter((item) => item.show);
 
   const currentUser = {
-    name: activeUser.name,
-    id: activeUser.id,
-    role: activeUser.role,
-    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(activeUser.name)}&background=dc2626&color=fff&bold=true`,
+    name: activeUser ? activeUser.name : 'Memuat...',
+    id: activeUser ? activeUser.id : '...',
+    role: activeUser ? activeUser.role : '',
+    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      activeUser?.name || 'User'
+    )}&background=dc2626&color=fff&bold=true`,
   };
 
   return (
@@ -77,9 +126,9 @@ export default function Layout() {
             </div>
           </div>
 
-          <div className="mb-2 px-3">
+          <div className="mb-2 px-3 flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-red-600">
-              Menu Utama
+              Menu {role}
             </span>
           </div>
 
@@ -107,7 +156,29 @@ export default function Layout() {
           </nav>
         </div>
 
-        <div className="pt-3 border-t border-gray-100">
+        <div className="pt-3 border-t border-gray-100 space-y-3">
+          
+          <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 px-1">
+              Simulasi Role Aktif:
+            </p>
+            <div className="grid grid-cols-3 gap-1">
+              {['mahasiswa', 'teknisi', 'admin'].map((r) => (
+                <button
+                  key={r}
+                  onClick={() => handleQuickRoleSwitch(r)}
+                  className={`py-1 px-1.5 rounded-lg text-[11px] font-bold capitalize cursor-pointer transition-colors ${
+                    role === r
+                      ? 'bg-red-600 text-white'
+                      : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200/80'
+                  }`}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <NavLink
             to="/profile"
             onClick={() => setIsOpen(false)}
@@ -134,7 +205,7 @@ export default function Layout() {
                   {currentUser.name}
                 </p>
                 <p className="text-xs text-gray-400 truncate capitalize">
-                  {currentUser.id} • {currentUser.role}
+                  {currentUser.id} {currentUser.role && `• ${currentUser.role}`}
                 </p>
               </div>
             </div>
