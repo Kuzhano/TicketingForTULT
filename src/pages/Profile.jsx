@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import ToastNotification from '../components/ToastNotification';
+import usersData from '../data/users.json';
 import {
   Hash,
   BookOpen,
@@ -8,7 +9,6 @@ import {
   Clock,
   LogOut,
   X,
-  CheckCircle2,
   Loader2
 } from 'lucide-react';
 
@@ -17,15 +17,26 @@ export default function Profile() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showToast, setShowToast] = useState(false);
 
+  const savedUser = JSON.parse(localStorage.getItem('activeUser'));
+  const activeUser = savedUser || usersData.find((u) => u.role === 'mahasiswa') || usersData[0];
+
+  const getInitials = (fullName) => {
+    return fullName
+      .split(' ')
+      .map((word) => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   const user = {
-    initials: 'SH',
-    name: 'Shiki',
-    role: 'Mahasiswa',
-    nim: '103022400090',
-    prodi: 'S1 Rekayasa Perangkat Lunak',
-    email: 'mohammaddzaki@student.telkomuniversity.ac.id',
-    fakultas: 'Fakultas Informatika (FIF)',
-    lastLogin: 'Hari ini, 09:42 WIB via SSO Telkom',
+    id: activeUser.id,
+    initials: getInitials(activeUser.name),
+    name: activeUser.name,
+    role: activeUser.role, // "mahasiswa", "teknisi", atau "admin"
+    username: activeUser.username,
+    prodi: activeUser.role === 'mahasiswa' ? 'S1 Rekayasa Perangkat Lunak' : 'Manajemen Gedung TULT',
+    fakultas: activeUser.role === 'mahasiswa' ? 'Fakultas Informatika (FIF)' : 'Direktorat Aset & Logistik',
     stats: {
       total: 4,
       proses: 1,
@@ -35,8 +46,8 @@ export default function Profile() {
 
   const handleConfirmLogout = () => {
     setIsLoggingOut(true);
-
     setTimeout(() => {
+      localStorage.removeItem('activeUser');
       setIsLoggingOut(false);
       setShowModal(false);
       setShowToast(true);
@@ -45,7 +56,6 @@ export default function Profile() {
 
   return (
     <div className="max-w-3xl mx-auto relative">
-
       {showToast && (
         <ToastNotification
           show={showToast}
@@ -56,7 +66,9 @@ export default function Profile() {
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <h2 className="text-2xl font-bold text-slate-900">Profil</h2>
+        <h2 className="text-2xl font-bold text-slate-900 capitalize">
+          Profil {user.role}
+        </h2>
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 cursor-default">
           <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
           <span>SSO Telkom University Aktif</span>
@@ -64,7 +76,7 @@ export default function Profile() {
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
-
+        
         <div className="h-32 bg-red-700 relative overflow-hidden">
           <div className="absolute -top-10 -left-10 w-44 h-44 rounded-full bg-red-600/70"></div>
           <div className="absolute top-6 left-1/3 w-48 h-48 rounded-full bg-red-600/50"></div>
@@ -72,7 +84,7 @@ export default function Profile() {
         </div>
 
         <div className="px-6 sm:px-8 pb-6">
-
+          
           <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-12 mb-6 relative z-10">
             <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-red-500 to-red-700 border-4 border-white shadow-md flex items-center justify-center text-white text-2xl font-bold shrink-0 hover:brightness-105 cursor-default">
               {user.initials}
@@ -81,7 +93,7 @@ export default function Profile() {
 
             <div className="flex items-center gap-3 pb-1">
               <h3 className="text-xl font-bold text-slate-900">{user.name}</h3>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-600 border border-red-100">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-600 border border-red-100 capitalize">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
                 {user.role}
               </span>
@@ -91,17 +103,17 @@ export default function Profile() {
           <hr className="border-gray-100 mb-6" />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-
+            
             <div className="flex items-center gap-3.5 p-3.5 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-red-50/40 hover:border-red-200 group">
               <div className="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center shrink-0 group-hover:bg-red-600 group-hover:text-white">
                 <Hash size={18} />
               </div>
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                  NIM
+                  ID Pengguna
                 </p>
                 <p className="text-sm font-bold text-slate-800 truncate">
-                  {user.nim}
+                  {user.id}
                 </p>
               </div>
             </div>
@@ -126,13 +138,13 @@ export default function Profile() {
               </div>
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                  Email Institusi
+                  Email / Username
                 </p>
                 <p
                   className="text-sm font-bold text-slate-800 truncate"
-                  title={user.email}
+                  title={user.username}
                 >
-                  {user.email}
+                  {user.username}
                 </p>
               </div>
             </div>
@@ -167,7 +179,6 @@ export default function Profile() {
               <p className="text-2xl font-extrabold text-emerald-600">{user.stats.selesai}</p>
             </div>
           </div>
-
         </div>
 
         <div className="px-6 sm:px-8 py-4 bg-gray-50/40 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -180,13 +191,11 @@ export default function Profile() {
             <span>Log Out</span>
           </button>
         </div>
-
       </div>
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-2xl border border-gray-200 shadow-xl max-w-md w-full overflow-hidden">
-
             <div className="p-6 flex items-start justify-between gap-4">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center shrink-0">
@@ -201,7 +210,6 @@ export default function Profile() {
                   </p>
                 </div>
               </div>
-
               <button
                 onClick={() => !isLoggingOut && setShowModal(false)}
                 disabled={isLoggingOut}
@@ -210,7 +218,6 @@ export default function Profile() {
                 <X size={18} />
               </button>
             </div>
-
             <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3">
               <button
                 onClick={() => setShowModal(false)}
@@ -219,7 +226,6 @@ export default function Profile() {
               >
                 Batal
               </button>
-
               <button
                 onClick={handleConfirmLogout}
                 disabled={isLoggingOut}
@@ -238,11 +244,9 @@ export default function Profile() {
                 )}
               </button>
             </div>
-
           </div>
         </div>
       )}
-
     </div>
   );
 }

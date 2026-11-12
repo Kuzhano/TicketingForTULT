@@ -10,11 +10,11 @@ import {
   Building2, 
   ChevronRight 
 } from 'lucide-react';
+import usersData from '../data/users.json';
 
 export default function Layout() {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Menu utama (Profil sudah dipisah ke bawah)
   const menus = [
     { name: 'Beranda', path: '/', icon: Home },
     { name: 'Buat Laporan', path: '/create', icon: PlusCircle },
@@ -22,18 +22,19 @@ export default function Layout() {
     { name: 'Detail Tiket', path: '/ticket/1', icon: FileText },
   ];
 
-  // Data pengguna untuk bagian bawah sidebar
+  const savedUser = JSON.parse(localStorage.getItem('activeUser'));
+  const activeUser = savedUser || usersData.find((u) => u.role === 'mahasiswa') || usersData[0];
+
   const currentUser = {
-    name: 'Shiki',
-    nim: '103022400090',
-    // Menggunakan UI Avatars dengan warna merah senada (bisa diganti URL foto asli)
-    avatar: 'https://ui-avatars.com/api/?name=Shiki&background=dc2626&color=fff&bold=true',
+    name: activeUser.name,
+    id: activeUser.id,
+    role: activeUser.role,
+    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(activeUser.name)}&background=dc2626&color=fff&bold=true`,
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       
-      {/* Header Mobile */}
       <div className="md:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-20">
         <div className="flex items-center gap-2.5">
           <div className="bg-red-600 text-white p-1.5 rounded-lg">
@@ -49,7 +50,6 @@ export default function Layout() {
         </button>
       </div>
 
-      {/* Overlay gelap saat sidebar dibuka di HP */}
       {isOpen && (
         <div 
           className="fixed inset-0 bg-black/40 z-20 md:hidden backdrop-blur-xs"
@@ -57,15 +57,12 @@ export default function Layout() {
         />
       )}
 
-      {/* Sidebar Navigasi Modern */}
       <aside 
         className={`fixed md:sticky md:top-0 inset-y-0 left-0 z-30 w-64 h-screen bg-white border-r border-gray-200 flex flex-col justify-between p-4 transform transition-transform duration-200 ease-in-out ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } md:translate-x-0`}
       >
-        {/* BAGIAN ATAS: Brand & Menu Navigasi */}
         <div>
-          {/* Brand Header dengan Ikon Modern */}
           <div className="flex items-center gap-3 px-2 py-3 mb-6 border-b border-gray-100">
             <div className="bg-red-600 text-white p-2.5 rounded-xl shadow-xs shadow-red-200">
               <Building2 size={22} />
@@ -80,14 +77,12 @@ export default function Layout() {
             </div>
           </div>
 
-          {/* Label Kategori */}
           <div className="mb-2 px-3">
             <span className="text-[11px] font-bold uppercase tracking-wider text-red-600">
               Menu Utama
             </span>
           </div>
 
-          {/* Daftar Menu */}
           <nav className="space-y-1">
             {menus.map((item) => {
               const Icon = item.icon;
@@ -112,7 +107,6 @@ export default function Layout() {
           </nav>
         </div>
 
-        {/* BAGIAN BAWAH: Kartu Profil Pengguna */}
         <div className="pt-3 border-t border-gray-100">
           <NavLink
             to="/profile"
@@ -126,7 +120,6 @@ export default function Layout() {
             }
           >
             <div className="flex items-center gap-3 min-w-0">
-              {/* Foto Profil + Indikator Online */}
               <div className="relative shrink-0">
                 <img
                   src={currentUser.avatar}
@@ -136,32 +129,27 @@ export default function Layout() {
                 <span className="bottom-0 right-0 absolute w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>
               </div>
 
-              {/* Nama & NIM */}
               <div className="truncate">
                 <p className="text-sm font-bold text-gray-800 group-hover:text-red-600 transition-colors truncate">
                   {currentUser.name}
                 </p>
-                <p className="text-xs text-gray-400 truncate">
-                  {currentUser.nim}
+                <p className="text-xs text-gray-400 truncate capitalize">
+                  {currentUser.id} • {currentUser.role}
                 </p>
               </div>
             </div>
 
-            {/* Ikon Panah Kecil */}
             <ChevronRight 
               size={16} 
               className="text-gray-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition-all shrink-0" 
             />
           </NavLink>
         </div>
-
       </aside>
 
-      {/* Area Konten Utama */}
       <main className="flex-1 p-6 md:p-8 overflow-y-auto">
         <Outlet />
       </main>
-
     </div>
   );
 }
