@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ToastNotification from '../components/ToastNotification';
 import { fetchData } from '../utils/api';
 import {
@@ -19,6 +20,8 @@ import {
 } from 'lucide-react';
 
 export default function Profile() {
+  const navigate = useNavigate();
+
   const [showModal, setShowModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -48,12 +51,13 @@ export default function Profile() {
       name: activeUser.name,
       role: activeUser.role,
       username: activeUser.username,
+      lastLogin: 'Hari ini, 09:42 WIB via SSO Telkom',
     };
 
     if (activeUser.role === 'admin') {
       return {
         ...base,
-        roleBadge: 'Admin',
+        roleBadge: 'Admin Verifikator',
         infoCards: [
           { icon: Hash, label: 'ID Admin', value: activeUser.id },
           { icon: ShieldCheck, label: 'Otoritas Peran', value: 'Verifikator Legitimasi Tiket' },
@@ -66,7 +70,7 @@ export default function Profile() {
     if (activeUser.role === 'teknisi') {
       return {
         ...base,
-        roleBadge: 'Teknisi',
+        roleBadge: 'Teknisi Gedung',
         infoCards: [
           { icon: Hash, label: 'ID Teknisi', value: activeUser.id },
           { icon: Wrench, label: 'Bidang Tugas', value: 'Penanganan & Perbaikan Fasilitas' },
@@ -177,7 +181,10 @@ export default function Profile() {
       setIsLoggingOut(false);
       setShowModal(false);
       setShowToast(true);
-      loadProfileAndStats();
+
+      setTimeout(() => {
+        navigate('/login');
+      }, 800);
     }, 2000);
   };
 
@@ -328,6 +335,12 @@ export default function Profile() {
           </div>
 
           <div className="px-6 sm:px-8 py-4 bg-gray-50/40 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <Clock size={15} className="text-slate-400 shrink-0" />
+              <span>
+                Terakhir masuk: <strong className="text-slate-700 font-semibold">{userData.lastLogin}</strong>
+              </span>
+            </div>
 
             <button
               onClick={() => setShowModal(true)}
