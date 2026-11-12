@@ -1,208 +1,248 @@
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { BookOpen, Clock, GraduationCap, Hash, LoaderCircle, LogOut, Mail } from 'lucide-react';
-import Modal from '../components/Modal';
-import { showToast } from '../components/ToastStore';
-import { hitungDalamProses, user } from '../data/user';
-
-const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2';
-
-function getInitials(name) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '?';
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[1][0]).toUpperCase();
-}
-
-function InfoTile({ icon: Icon, label, value, mono = false, truncate = false }) {
-  return (
-    <div className="group flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3.5 transition duration-200 hover:border-red-100 hover:bg-white hover:shadow-md hover:shadow-slate-200/70 motion-safe:hover:-translate-y-0.5 motion-reduce:transition-none">
-      <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-red-50 text-red-600 transition-colors duration-200 group-hover:bg-red-600 group-hover:text-white motion-reduce:transition-none">
-        <Icon size={17} aria-hidden="true" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{label}</p>
-        <p
-          className={`mt-0.5 text-sm font-semibold text-slate-800 ${mono ? 'font-mono' : ''} ${truncate ? 'truncate' : ''}`}
-          title={truncate ? value : undefined}
-        >
-          {value}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function StatItem({ label, value, labelClass, valueClass }) {
-  return (
-    <div className="px-2 py-4 text-center">
-      <p className={`text-xs font-medium ${labelClass}`}>{label}</p>
-      <p className={`mt-1 text-2xl font-bold tabular-nums sm:text-[26px] ${valueClass}`}>{value}</p>
-    </div>
-  );
-}
-
-const ghostButton = `inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none ${focusRing}`;
-
-const solidButton = `inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-red-600/30 transition-colors duration-150 hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-80 motion-reduce:transition-none ${focusRing}`;
+import { useState } from 'react';
+import ToastNotification from '../components/ToastNotification';
+import {
+  Hash,
+  BookOpen,
+  Mail,
+  GraduationCap,
+  Clock,
+  LogOut,
+  X,
+  CheckCircle2,
+  Loader2
+} from 'lucide-react';
 
 export default function Profile() {
-  const navigate = useNavigate();
-  const [logoutOpen, setLogoutOpen] = useState(false);
-  const [loggingOut, setLoggingOut] = useState(false);
-  const logoutButtonRef = useRef(null);
-  const cancelLogoutRef = useRef(null);
-  const logoutTimerRef = useRef(null);
+  const [showModal, setShowModal] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [showToast, setShowToast] = useState(false);
 
-  useEffect(() => () => clearTimeout(logoutTimerRef.current), []);
-
-  const dalamProses = hitungDalamProses(user);
-  const initials = getInitials(user.name);
+  const user = {
+    initials: 'SH',
+    name: 'Shiki',
+    role: 'Mahasiswa',
+    nim: '103022400090',
+    prodi: 'S1 Rekayasa Perangkat Lunak',
+    email: 'mohammaddzaki@student.telkomuniversity.ac.id',
+    fakultas: 'Fakultas Informatika (FIF)',
+    lastLogin: 'Hari ini, 09:42 WIB via SSO Telkom',
+    stats: {
+      total: 4,
+      proses: 1,
+      selesai: 3,
+    },
+  };
 
   const handleConfirmLogout = () => {
-    setLoggingOut(true);
-    logoutTimerRef.current = setTimeout(() => {
-      navigate('/');
-      showToast('Berhasil keluar dari akun', { type: 'success' });
-    }, 1000);
+    setIsLoggingOut(true);
+
+    setTimeout(() => {
+      setIsLoggingOut(false);
+      setShowModal(false);
+      setShowToast(true);
+    }, 2000);
   };
 
   return (
-    <div className="mx-auto w-full max-w-[720px]">
-      {/* Header */}
-      <header className="mb-6 flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="text-2xl font-bold tracking-tight text-slate-800 sm:text-[28px]">Profil Mahasiswa</h1>
-        </div>
-        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-          <span className="size-2 rounded-full bg-emerald-500" aria-hidden="true" />
-          SSO Telkom University Aktif
-        </span>
-      </header>
+    <div className="max-w-3xl mx-auto relative">
 
-      {/* Kartu utama */}
-      <section
-        aria-label="Informasi profil"
-        className="overflow-hidden rounded-2xl bg-white shadow-[0_10px_40px_-12px_rgba(15,23,42,0.15)] ring-1 ring-slate-900/5"
-      >
-        {/* Hero banner */}
-        <div className="relative h-[120px] overflow-hidden bg-linear-to-br from-red-600 to-red-700">
-          <span aria-hidden="true" className="absolute -left-10 -top-16 size-48 rounded-full bg-white/10" />
-          <span aria-hidden="true" className="absolute -bottom-20 left-1/3 size-40 rounded-full bg-white/10" />
-          <span aria-hidden="true" className="absolute -top-6 right-24 size-24 rounded-full bg-white/10" />
+      {showToast && (
+        <ToastNotification
+          show={showToast}
+          message="Berhasil keluar dari akun"
+          type="success"
+          onClose={() => setShowToast(false)}
+        />
+      )}
+
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <h2 className="text-2xl font-bold text-slate-900">Profil</h2>
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 cursor-default">
+          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>SSO Telkom University Aktif</span>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
+
+        <div className="h-32 bg-red-700 relative overflow-hidden">
+          <div className="absolute -top-10 -left-10 w-44 h-44 rounded-full bg-red-600/70"></div>
+          <div className="absolute top-6 left-1/3 w-48 h-48 rounded-full bg-red-600/50"></div>
+          <div className="absolute -top-8 right-16 w-28 h-28 rounded-full bg-red-500/50"></div>
         </div>
 
-        <div className="px-5 sm:px-7">
-          {/* Avatar + identitas */}
-          <div className="flex flex-col gap-3 border-b border-slate-100 pb-5 sm:flex-row sm:items-end sm:gap-5">
-            <div className="relative -mt-12 grid size-24 shrink-0 place-items-center rounded-2xl border-4 border-white bg-linear-to-br from-red-500 to-red-700 text-3xl font-bold text-white shadow-lg shadow-red-900/20 transition duration-200 hover:shadow-xl hover:shadow-red-600/40 hover:ring-4 hover:ring-red-500/30 motion-safe:hover:scale-[1.04] motion-reduce:transition-none">
-              <span aria-hidden="true">{initials}</span>
-              <span
-                role="img"
-                aria-label="Online"
-                className="absolute -bottom-1 -right-1 size-4 rounded-full border-[3px] border-white bg-emerald-500"
-              />
+        <div className="px-6 sm:px-8 pb-6">
+
+          <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-12 mb-6 relative z-10">
+            <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-red-500 to-red-700 border-4 border-white shadow-md flex items-center justify-center text-white text-2xl font-bold shrink-0 hover:brightness-105 cursor-default">
+              {user.initials}
+              <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></span>
             </div>
 
-            <div className="flex min-w-0 flex-wrap items-center gap-2 sm:pb-3">
-              <h2 className="truncate text-[22px] font-bold leading-tight text-slate-800">{user.name}</h2>
-              <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-700">
-                <span className="size-1.5 rounded-full bg-red-600" aria-hidden="true" />
+            <div className="flex items-center gap-3 pb-1">
+              <h3 className="text-xl font-bold text-slate-900">{user.name}</h3>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-600 border border-red-100">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
                 {user.role}
               </span>
             </div>
           </div>
 
-          {/* Grid info */}
-          <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2">
-            <InfoTile icon={Hash} label="NIM" value={user.nim} mono />
-            <InfoTile icon={BookOpen} label="Program Studi" value={user.prodi} />
-            <InfoTile icon={Mail} label="Email Institusi" value={user.email} mono truncate />
-            <InfoTile icon={GraduationCap} label="Fakultas" value={user.fakultas} />
+          <hr className="border-gray-100 mb-6" />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+
+            <div className="flex items-center gap-3.5 p-3.5 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-red-50/40 hover:border-red-200 group">
+              <div className="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center shrink-0 group-hover:bg-red-600 group-hover:text-white">
+                <Hash size={18} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                  NIM
+                </p>
+                <p className="text-sm font-bold text-slate-800 truncate">
+                  {user.nim}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3.5 p-3.5 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-red-50/40 hover:border-red-200 group">
+              <div className="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center shrink-0 group-hover:bg-red-600 group-hover:text-white">
+                <BookOpen size={18} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                  Program Studi
+                </p>
+                <p className="text-sm font-bold text-slate-800 truncate">
+                  {user.prodi}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3.5 p-3.5 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-red-50/40 hover:border-red-200 group">
+              <div className="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center shrink-0 group-hover:bg-red-600 group-hover:text-white">
+                <Mail size={18} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                  Email Institusi
+                </p>
+                <p
+                  className="text-sm font-bold text-slate-800 truncate"
+                  title={user.email}
+                >
+                  {user.email}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3.5 p-3.5 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-red-50/40 hover:border-red-200 group">
+              <div className="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center shrink-0 group-hover:bg-red-600 group-hover:text-white">
+                <GraduationCap size={18} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                  Fakultas
+                </p>
+                <p className="text-sm font-bold text-slate-800 truncate">
+                  {user.fakultas}
+                </p>
+              </div>
+            </div>
+
           </div>
 
-          {/* Strip statistik */}
-          <div className="mt-5 grid grid-cols-3 divide-x divide-slate-200 rounded-xl border border-slate-100 bg-slate-50">
-            <StatItem
-              label="Total Laporan"
-              value={user.totalLaporan}
-              labelClass="text-slate-500"
-              valueClass="text-slate-800"
-            />
-            <StatItem label="Dalam Proses" value={dalamProses} labelClass="text-amber-700" valueClass="text-amber-600" />
-            <StatItem
-              label="Selesai"
-              value={user.laporanSelesai}
-              labelClass="text-emerald-700"
-              valueClass="text-emerald-600"
-            />
+          <div className="grid grid-cols-3 rounded-xl border border-gray-100 bg-gray-50/60 divide-x divide-gray-200/70 overflow-hidden">
+            <div className="p-4 text-center hover:bg-gray-100/80 cursor-default">
+              <p className="text-xs font-medium text-slate-500 mb-1">Total Laporan</p>
+              <p className="text-2xl font-extrabold text-slate-900">{user.stats.total}</p>
+            </div>
+            <div className="p-4 text-center hover:bg-amber-50/60 cursor-default">
+              <p className="text-xs font-semibold text-amber-700 mb-1">Dalam Proses</p>
+              <p className="text-2xl font-extrabold text-amber-600">{user.stats.proses}</p>
+            </div>
+            <div className="p-4 text-center hover:bg-emerald-50/60 cursor-default">
+              <p className="text-xs font-semibold text-emerald-700 mb-1">Selesai</p>
+              <p className="text-2xl font-extrabold text-emerald-600">{user.stats.selesai}</p>
+            </div>
           </div>
+
         </div>
 
-        {/* Footer kartu */}
-        <div className="mt-6 flex flex-col gap-3 border-t border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
-          <p className="flex items-center gap-2 text-xs text-slate-500">
-            <Clock size={14} className="shrink-0" aria-hidden="true" />
-            <span>
-              Terakhir masuk: <span className="font-medium text-slate-700">{user.terakhirMasuk}</span>
-            </span>
-          </p>
+        <div className="px-6 sm:px-8 py-4 bg-gray-50/40 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+
           <button
-            ref={logoutButtonRef}
-            type="button"
-            onClick={() => setLogoutOpen(true)}
-            className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 transition duration-200 hover:border-red-600 hover:bg-red-600 hover:text-white hover:shadow-md hover:shadow-red-600/25 motion-safe:hover:-translate-y-0.5 motion-reduce:transition-none ${focusRing}`}
+            onClick={() => setShowModal(true)}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-red-200 bg-white text-red-600 text-xs font-bold hover:bg-red-600 hover:text-white hover:border-red-600 cursor-pointer"
           >
-            <LogOut size={16} aria-hidden="true" />
-            Log Out
+            <LogOut size={15} />
+            <span>Log Out</span>
           </button>
         </div>
-      </section>
 
-      {/* Modal konfirmasi Log Out */}
-      <Modal
-        open={logoutOpen}
-        onClose={() => setLogoutOpen(false)}
-        title="Yakin ingin keluar?"
-        description="Sesi SSO kamu akan berakhir di perangkat ini."
-        icon={<LogOut size={18} aria-hidden="true" />}
-        dismissible={!loggingOut}
-        initialFocusRef={cancelLogoutRef}
-        returnFocusRef={logoutButtonRef}
-        footer={
-          <>
-            <button
-              ref={cancelLogoutRef}
-              type="button"
-              onClick={() => setLogoutOpen(false)}
-              disabled={loggingOut}
-              className={ghostButton}
-            >
-              Batal
-            </button>
-            <button
-              type="button"
-              onClick={handleConfirmLogout}
-              disabled={loggingOut}
-              aria-busy={loggingOut}
-              className={solidButton}
-            >
-              {loggingOut ? (
-                <>
-                  <LoaderCircle size={16} className="motion-safe:animate-spin" aria-hidden="true" />
-                  Memproses…
-                </>
-              ) : (
-                <>
-                  <LogOut size={16} aria-hidden="true" />
-                  Keluar
-                </>
-              )}
-            </button>
-          </>
-        }
-      />
+      </div>
+
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-xl max-w-md w-full overflow-hidden">
+
+            <div className="p-6 flex items-start justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+                  <LogOut size={22} />
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold text-slate-900">
+                    Yakin ingin keluar?
+                  </h4>
+                  <p className="text-sm text-slate-500 mt-1">
+                    Sesi SSO kamu akan berakhir di perangkat ini.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => !isLoggingOut && setShowModal(false)}
+                disabled={isLoggingOut}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-gray-100 disabled:opacity-50 cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowModal(false)}
+                disabled={isLoggingOut}
+                className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-gray-200/70 hover:text-slate-900 disabled:opacity-50 cursor-pointer"
+              >
+                Batal
+              </button>
+
+              <button
+                onClick={handleConfirmLogout}
+                disabled={isLoggingOut}
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 disabled:bg-red-400 min-w-[125px] cursor-pointer"
+              >
+                {isLoggingOut ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    <span>Memproses...</span>
+                  </>
+                ) : (
+                  <>
+                    <LogOut size={16} />
+                    <span>Keluar</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
