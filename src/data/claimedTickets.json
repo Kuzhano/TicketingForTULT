@@ -1,0 +1,27 @@
+[
+  {
+    "ticketId": "TKT-001",
+    "technicianId": "tech-001",
+    "claimedAt": "2026-10-21T08:30:00.000Z"
+  },
+  {
+    "ticketId": "TKT-004",
+    "technicianId": "tech-002",
+    "claimedAt": "2026-10-19T09:15:00.000Z"
+  },
+  {
+    "ticketId": "TKT-006",
+    "technicianId": "tech-003",
+    "claimedAt": "2025-01-16T10:00:00.000Z"
+  },
+  {
+    "ticketId": "TKT-008",
+    "technicianId": "tech-001",
+    "claimedAt": "2025-02-06T08:45:00.000Z"
+  },
+  {
+    "ticketId": "TKT-012",
+    "technicianId": "tech-002",
+    "claimedAt": "2025-03-16T11:20:00.000Z"
+  }
+]
