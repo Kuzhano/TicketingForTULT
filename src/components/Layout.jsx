@@ -9,7 +9,8 @@ import {
   Building2, 
   ChevronRight,
   Wrench,
-  ShieldCheck
+  ShieldCheck,
+  UserCheck
 } from 'lucide-react';
 import { fetchData } from '../utils/api';
 
@@ -51,12 +52,16 @@ export default function Layout() {
     },
     { 
       name: role === 'admin' 
-        ? 'Verifikasi Tiket' 
+        ? 'Penugasan Teknisi' 
         : role === 'teknisi' 
           ? 'Tugas Perbaikan' 
           : 'Riwayat Tiket', 
-      path: role === 'teknisi' ? '/teknisi' : '/history',
-      icon: role === 'admin' ? ShieldCheck : role === 'teknisi' ? Wrench : FolderClock, 
+      path: role === 'teknisi' 
+        ? '/teknisi' 
+        : role === 'admin' 
+          ? '/penugasan' 
+          : '/history',
+      icon: role === 'admin' ? UserCheck : role === 'teknisi' ? Wrench : FolderClock, 
       show: true 
     },
   ].filter((item) => item.show);
