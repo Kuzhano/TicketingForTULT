@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ticketsData from '../data/tickets.json';
+
+const currentUser = { userId: 'student-001' };
 
 export default function CreateTicket() {
   const navigate = useNavigate();
@@ -40,16 +43,21 @@ export default function CreateTicket() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const existingTickets = JSON.parse(localStorage.getItem('tult_tickets')) || [];
+    const nextTicketNumber = [...ticketsData, ...existingTickets].reduce((max, ticket) => {
+      const match = /^TKT-(\d+)$/.exec(ticket.id);
+      return match ? Math.max(max, Number(match[1])) : max;
+    }, 0) + 1;
     
     const newTicket = {
-      id: Date.now(),
+      id: `TKT-${String(nextTicketNumber).padStart(3, '0')}`,
+      userId: currentUser.userId,
       judul: formData.judul,
-      lantai: formData.lantai,
+      lantai: String(formData.lantai),
       ruangan: formData.ruangan,
       deskripsi: formData.deskripsi,
       namaFileBukti: formData.bukti ? formData.bukti.name : 'Tidak ada file',
       status: 'Menunggu',
-      tanggal: new Date().toLocaleDateString('id-ID')
+      tanggal: new Date().toISOString().slice(0, 10)
     };
 
     existingTickets.push(newTicket);
