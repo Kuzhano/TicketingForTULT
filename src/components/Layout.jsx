@@ -4,7 +4,6 @@ import {
   Home, 
   PlusCircle, 
   FolderClock, 
-  FileText, 
   Menu, 
   X, 
   Building2, 
@@ -40,15 +39,6 @@ export default function Layout() {
     loadActiveUser();
   }, []);
 
-  const handleQuickRoleSwitch = (targetRole) => {
-    const foundUser = allUsers.find((u) => u.role === targetRole);
-    if (foundUser) {
-      localStorage.setItem('activeUser', JSON.stringify(foundUser));
-      setActiveUser(foundUser);
-      window.dispatchEvent(new Event('userRoleChanged'));
-    }
-  };
-
   const role = activeUser?.role || 'mahasiswa';
 
   const menus = [
@@ -69,7 +59,6 @@ export default function Layout() {
       icon: role === 'admin' ? ShieldCheck : role === 'teknisi' ? Wrench : FolderClock, 
       show: true 
     },
-    { name: 'Detail Tiket', path: '/ticket/TKT-001', icon: FileText, show: true },
   ].filter((item) => item.show);
 
   const currentUser = {
@@ -157,28 +146,6 @@ export default function Layout() {
         </div>
 
         <div className="pt-3 border-t border-gray-100 space-y-3">
-          
-          <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
-            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 px-1">
-              Simulasi Role Aktif:
-            </p>
-            <div className="grid grid-cols-3 gap-1">
-              {['mahasiswa', 'teknisi', 'admin'].map((r) => (
-                <button
-                  key={r}
-                  onClick={() => handleQuickRoleSwitch(r)}
-                  className={`py-1 px-1.5 rounded-lg text-[11px] font-bold capitalize cursor-pointer transition-colors ${
-                    role === r
-                      ? 'bg-red-600 text-white'
-                      : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200/80'
-                  }`}
-                >
-                  {r}
-                </button>
-              ))}
-            </div>
-          </div>
-
           <NavLink
             to="/profile"
             onClick={() => setIsOpen(false)}
