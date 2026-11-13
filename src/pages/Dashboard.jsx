@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
+  BadgeCheck,
   CalendarDays,
   CheckCircle2,
   Clock3,
@@ -33,6 +34,7 @@ function formatTicketDate(ticket) {
 }
 
 function getStatusStyle(status) {
+  if (status === 'Tervalidasi') return 'bg-violet-50 text-violet-700';
   if (status === 'Selesai') return 'bg-emerald-50 text-emerald-700';
   if (status === 'Diproses') return 'bg-blue-50 text-blue-700';
   return 'bg-amber-50 text-amber-700';
@@ -62,6 +64,14 @@ const statusGroups = [
     textColor: 'text-emerald-700',
     background: 'bg-emerald-50',
     dot: 'bg-emerald-500',
+  },
+  {
+    key: 'Tervalidasi',
+    label: 'Telah divalidasi',
+    icon: BadgeCheck,
+    textColor: 'text-violet-700',
+    background: 'bg-violet-50',
+    dot: 'bg-violet-500',
   },
 ];
 
@@ -163,7 +173,7 @@ function AdminDashboard({ tickets }) {
           <span className="text-sm text-gray-500">{selectedTickets.length} tiket masuk</span>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {statusGroups.map((group, index) => {
             const Icon = group.icon;
             return (
@@ -206,7 +216,7 @@ function AdminDashboard({ tickets }) {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+          <table className="w-full min-w-160 border-collapse text-left text-sm">
             <thead className="bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500">
               <tr>
                 <th scope="col" className="px-5 py-3">Bulan</th>
@@ -277,6 +287,8 @@ export default function Dashboard() {
       if (!Array.isArray(localTickets)) {
         throw new Error('Format tiket tersimpan di browser tidak valid.');
       }
+      const ticketStatuses = JSON.parse(localStorage.getItem('tult_ticket_status') || '{}');
+      const legacyTicketStatuses = JSON.parse(localStorage.getItem('statusTiket') || '{}');
 
       const savedUserValue = localStorage.getItem('activeUser');
       const savedUser = savedUserValue ? JSON.parse(savedUserValue) : null;
@@ -290,7 +302,13 @@ export default function Dashboard() {
         ...new Map(
           [...fetchedTickets, ...localTickets].map((ticket) => [ticket.id, ticket])
         ).values(),
-      ];
+      ].map((ticket) => ({
+        ...ticket,
+        status:
+          ticketStatuses[String(ticket.id)] ||
+          legacyTicketStatuses[String(ticket.id)] ||
+          ticket.status,
+      }));
 
       setTickets(uniqueTickets);
       setActiveUser(user);
@@ -448,7 +466,7 @@ export default function Dashboard() {
             {visibleTickets.map((ticket) => (
               <article key={ticket.id} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                 <div className="flex items-start justify-between gap-3">
-                  <h2 className="min-w-0 break-words text-sm font-semibold text-gray-900">
+                  <h2 className="min-w-0 wrap-break-word text-sm font-semibold text-gray-900">
                     {ticket.judul}
                   </h2>
                   <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusStyle(ticket.status)}`}>
@@ -461,7 +479,7 @@ export default function Dashboard() {
                 <div className="mt-4 space-y-2 border-t border-gray-100 pt-3 text-xs text-gray-500">
                   <p className="flex items-start gap-2">
                     <MapPin size={15} className="mt-0.5 shrink-0 text-gray-400" />
-                    <span className="break-words">Lantai {ticket.lantai}, {ticket.ruangan}</span>
+                    <span className="wrap-break-word">Lantai {ticket.lantai}, {ticket.ruangan}</span>
                   </p>
                   <p className="flex items-center gap-2">
                     <CalendarDays size={15} className="shrink-0 text-gray-400" />
@@ -474,7 +492,7 @@ export default function Dashboard() {
 
           <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white md:block">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[760px] divide-y divide-gray-200 text-left">
+              <table className="w-full min-w-190 divide-y divide-gray-200 text-left">
                 <thead className="bg-gray-50">
                   <tr>
                     <th scope="col" className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Laporan</th>

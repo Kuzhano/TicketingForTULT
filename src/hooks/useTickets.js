@@ -6,6 +6,7 @@ const KUNCI_TIKET = 'tult_tickets';
 const KUNCI_TIKET_LAMA = 'tickets';
 const KUNCI_STATUS = 'tult_ticket_status';
 const KUNCI_STATUS_LAMA = 'statusTiket';
+const KUNCI_ALASAN_PENOLAKAN = 'tult_ticket_rejection_reasons';
 
 function bacaStorage(kunci, nilaiAwal) {
   try {
@@ -50,6 +51,7 @@ export default function useTickets() {
 
       const statusTeknisi = bacaStorage(KUNCI_STATUS, {});
       const statusLama = bacaStorage(KUNCI_STATUS_LAMA, {});
+      const alasanPenolakan = bacaStorage(KUNCI_ALASAN_PENOLAKAN, {});
 
       const semuaTiket = hapusDuplikat([
         ...dataApi,
@@ -67,6 +69,7 @@ export default function useTickets() {
             statusLama[id] ||
             tiket.status ||
             'Menunggu',
+          alasanPenolakan: alasanPenolakan[id] || '',
         };
       });
 
@@ -93,6 +96,7 @@ export default function useTickets() {
           KUNCI_TIKET_LAMA,
           KUNCI_STATUS,
           KUNCI_STATUS_LAMA,
+          KUNCI_ALASAN_PENOLAKAN,
         ].includes(event.key)
       ) {
         reload();
@@ -106,22 +110,30 @@ export default function useTickets() {
     };
   }, [reload]);
 
-  function ubahStatus(id, statusBaru) {
-    const alurStatus = {
-      Menunggu: 'Diproses',
-      Diproses: 'Selesai',
+  function ubahStatus(id, statusBaru, alasanPenolakan = '') {
+    const transisiStatus = {
+      Menunggu: ['Diproses'],
+      Diproses: ['Selesai'],
+      Selesai: ['Tervalidasi', 'Diproses'],
     };
 
     const tiket = tickets.find(
       (item) => String(item.id) === String(id)
     );
 
-    if (!tiket || alurStatus[tiket.status] !== statusBaru) {
+    if (
+      !tiket ||
+      !transisiStatus[tiket.status]?.includes(statusBaru) ||
+      (tiket.status === 'Selesai' &&
+        statusBaru === 'Diproses' &&
+        !alasanPenolakan.trim())
+    ) {
       return false;
     }
 
     try {
       const statusTersimpan = bacaStorage(KUNCI_STATUS, {});
+      const alasanTersimpan = bacaStorage(KUNCI_ALASAN_PENOLAKAN, {});
 
       localStorage.setItem(
         KUNCI_STATUS,
@@ -130,11 +142,24 @@ export default function useTickets() {
           [String(id)]: statusBaru,
         })
       );
+      if (statusBaru === 'Diproses' && tiket.status === 'Selesai') {
+        alasanTersimpan[String(id)] = alasanPenolakan.trim();
+      } else {
+        delete alasanTersimpan[String(id)];
+      }
+      localStorage.setItem(KUNCI_ALASAN_PENOLAKAN, JSON.stringify(alasanTersimpan));
 
       setTickets((sebelumnya) =>
         sebelumnya.map((item) =>
           String(item.id) === String(id)
-            ? { ...item, status: statusBaru }
+            ? {
+                ...item,
+                status: statusBaru,
+                alasanPenolakan:
+                  statusBaru === 'Diproses' && tiket.status === 'Selesai'
+                    ? alasanPenolakan.trim()
+                    : '',
+              }
             : item
         )
       );
