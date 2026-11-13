@@ -17,12 +17,14 @@ function formatTanggal(value) {
 }
 
 function getStatusStyle(status) {
+      if (status === 'Tervalidasi') return 'bg-violet-100 text-violet-800 ring-violet-200';
       if (status === 'Selesai') return 'bg-emerald-100 text-emerald-800 ring-emerald-200';
       if (status === 'Diproses') return 'bg-blue-100 text-blue-800 ring-blue-200';
       return 'bg-amber-100 text-amber-800 ring-amber-200';
 }
 
 function getStatusDotStyle(status) {
+      if (status === 'Tervalidasi') return 'bg-violet-600';
       if (status === 'Selesai') return 'bg-emerald-600';
       if (status === 'Diproses') return 'bg-blue-600';
       return 'bg-amber-600';
@@ -66,11 +68,21 @@ export default function TicketHistory() {
           [...fetchedTickets, ...localTickets].map((ticket) => [ticket.id, ticket])
         ).values(),
       ];
+      const ticketStatuses = JSON.parse(localStorage.getItem('tult_ticket_status') || '{}');
+      const legacyTicketStatuses = JSON.parse(localStorage.getItem('statusTiket') || '{}');
 
       setTickets(
-        allTickets.filter(
-          (ticket) => ticket.userId === currentUser.id && currentUser.role === 'mahasiswa'
-        )
+        allTickets
+          .map((ticket) => ({
+            ...ticket,
+            status:
+              ticketStatuses[String(ticket.id)] ||
+              legacyTicketStatuses[String(ticket.id)] ||
+              ticket.status,
+          }))
+          .filter(
+            (ticket) => ticket.userId === currentUser.id && currentUser.role === 'mahasiswa'
+          )
       );
     } catch (error) {
       setErrorMessage(
@@ -151,7 +163,7 @@ export default function TicketHistory() {
                 <span className="mb-2 inline-block rounded-md bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600">
                   #{ticket.id}
                 </span>
-                <h3 className="break-words text-base font-semibold text-gray-800">
+                <h3 className="wrap-break-word text-base font-semibold text-gray-800">
                   {ticket.judul}
                 </h3>
                 <span className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${getStatusStyle(ticket.status)}`}>

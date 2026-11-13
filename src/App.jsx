@@ -9,6 +9,7 @@ import Profile from './pages/Profile';
 import TicketTeknisi from './pages/TicketTeknisi';
 import TeknisiTaskDetail from './pages/TeknisiTaskDetail';
 import Penugasan_Admin from './pages/Penugasan_Admin';
+import ValidasiTeknisi from './pages/ValidasiTeknisi';
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="teknisi" element={<TicketTeknisi />} />
           <Route path="teknisi/:id" element={<TeknisiTaskDetail />} />
           <Route path="penugasan" element={<Penugasan_Admin />} />
+          <Route path="validasi" element={<ValidasiTeknisi />} />
         </Route>
       </Routes>
     </BrowserRouter>

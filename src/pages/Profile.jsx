@@ -125,7 +125,10 @@ export default function Profile() {
           col3: {
             label: 'Terverifikasi / Selesai',
             value: allTickets.filter(
-              (t) => t.status === 'Diproses' || t.status === 'Selesai'
+              (t) =>
+                t.status === 'Diproses' ||
+                t.status === 'Selesai' ||
+                t.status === 'Tervalidasi'
             ).length,
           },
         });
@@ -138,7 +141,9 @@ export default function Profile() {
           },
           col3: {
             label: 'Selesai Diperbaiki',
-            value: allTickets.filter((t) => t.status === 'Selesai').length,
+            value: allTickets.filter(
+              (t) => t.status === 'Selesai' || t.status === 'Tervalidasi'
+            ).length,
           },
         });
       } else {
@@ -153,7 +158,9 @@ export default function Profile() {
           },
           col3: {
             label: 'Masalah Selesai',
-            value: myTickets.filter((t) => t.status === 'Selesai').length,
+            value: myTickets.filter(
+              (t) => t.status === 'Selesai' || t.status === 'Tervalidasi'
+            ).length,
           },
         });
       }
@@ -263,7 +270,7 @@ export default function Profile() {
 
           <div className="px-6 sm:px-8 pb-6">
             <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-12 mb-6 relative z-10">
-              <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-red-500 to-red-700 border-4 border-white shadow-md flex items-center justify-center text-white text-2xl font-bold shrink-0 hover:brightness-105 cursor-default">
+              <div className="relative w-24 h-24 rounded-2xl bg-linear-to-br from-red-500 to-red-700 border-4 border-white shadow-md flex items-center justify-center text-white text-2xl font-bold shrink-0 hover:brightness-105 cursor-default">
                 {userData.initials}
                 <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></span>
               </div>
@@ -389,7 +396,7 @@ export default function Profile() {
               <button
                 onClick={handleConfirmLogout}
                 disabled={isLoggingOut}
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 disabled:bg-red-400 min-w-[125px] cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 disabled:bg-red-400 min-w-31.25 cursor-pointer"
               >
                 {isLoggingOut ? (
                   <>

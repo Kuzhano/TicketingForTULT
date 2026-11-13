@@ -37,6 +37,10 @@ function keteranganStatus(status) {
     return 'Kerusakan telah selesai ditangani oleh teknisi.';
   }
 
+  if (status === 'Tervalidasi') {
+    return 'Hasil pekerjaan teknisi telah diperiksa dan disetujui admin.';
+  }
+
   return 'Informasi perkembangan laporan belum tersedia.';
 }
 
@@ -202,7 +206,7 @@ export default function TicketDetail() {
                   #{tiketDitampilkan.id}
                 </p>
 
-                <h1 className="text-2xl font-bold text-gray-800 break-words">
+                <h1 className="text-2xl font-bold text-gray-800 wrap-break-word">
                   {tiketDitampilkan.judul || 'Tanpa Judul'}
                 </h1>
 
@@ -264,7 +268,7 @@ export default function TicketDetail() {
                   Ruangan
                 </dt>
 
-                <dd className="border border-gray-200 rounded-lg px-3 py-3 break-words">
+                <dd className="border border-gray-200 rounded-lg px-3 py-3 wrap-break-word">
                   {tiketDitampilkan.ruangan || '-'}
                 </dd>
               </div>

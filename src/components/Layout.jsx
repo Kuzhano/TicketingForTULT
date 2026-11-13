@@ -9,21 +9,19 @@ import {
   Building2, 
   ChevronRight,
   Wrench,
-  ShieldCheck,
-  UserCheck
+  UserCheck,
+  ClipboardCheck,
 } from 'lucide-react';
 import { fetchData } from '../utils/api';
 
 export default function Layout() {
   const [isOpen, setIsOpen] = useState(false);
-  const [allUsers, setAllUsers] = useState([]);
   const [activeUser, setActiveUser] = useState(null);
 
   useEffect(() => {
     const loadActiveUser = async () => {
       try {
         const users = await fetchData('users');
-        setAllUsers(users);
 
         const savedUser = JSON.parse(localStorage.getItem('activeUser'));
         if (savedUser) {
@@ -63,6 +61,12 @@ export default function Layout() {
           : '/history',
       icon: role === 'admin' ? UserCheck : role === 'teknisi' ? Wrench : FolderClock, 
       show: true 
+    },
+    {
+      name: 'Validasi Pekerjaan',
+      path: '/validasi',
+      icon: ClipboardCheck,
+      show: role === 'admin',
     },
   ].filter((item) => item.show);
 

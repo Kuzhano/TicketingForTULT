@@ -15,6 +15,7 @@ import { fetchData } from '../utils/api';
 const claimedUrl = new URL('../data/claimedTickets.json', import.meta.url).href;
 const ticketStorageKey = 'tult_tickets';
 const statusStorageKey = 'tult_ticket_status';
+const rejectionReasonStorageKey = 'tult_ticket_rejection_reasons';
 const docStorageKey = 'tult_ticket_docs';
 
 function formatTanggal(value) {
@@ -29,6 +30,7 @@ function formatTanggal(value) {
 }
 
 function getStatusStyle(status) {
+  if (status === 'Tervalidasi') return 'bg-violet-100 text-violet-800 ring-violet-200';
   if (status === 'Selesai') return 'bg-emerald-100 text-emerald-800 ring-emerald-200';
   if (status === 'Diproses') return 'bg-blue-100 text-blue-800 ring-blue-200';
   return 'bg-amber-100 text-amber-800 ring-amber-200';
@@ -71,6 +73,7 @@ export default function TeknisiTaskDetail() {
       const klaim = claimed.find((c) => c.ticketId === id && c.technicianId === activeUser?.id);
       const localTickets = JSON.parse(localStorage.getItem(ticketStorageKey) || '[]');
       const found = [...fetchedTickets, ...localTickets].find((t) => t.id === id);
+      const alasanPenolakan = bacaStorage(rejectionReasonStorageKey)[id] || '';
 
       if (activeUser?.role !== 'teknisi' || !klaim || !found) {
         setNotFound(true);
@@ -83,6 +86,7 @@ export default function TeknisiTaskDetail() {
       setTicket({
         ...found,
         status: bacaStorage(statusStorageKey)[id] ?? found.status,
+        alasanPenolakan,
         claimedAt: klaim.claimedAt,
         pelapor: pelapor ? pelapor.name : 'Tidak diketahui',
       });
@@ -125,7 +129,15 @@ export default function TeknisiTaskDetail() {
     semuaStatus[id] = statusBaru;
     simpanStorage(statusStorageKey, semuaStatus);
 
-    setTicket((prev) => ({ ...prev, status: statusBaru }));
+    const semuaAlasan = bacaStorage(rejectionReasonStorageKey);
+    if (statusBaru === 'Selesai') delete semuaAlasan[id];
+    simpanStorage(rejectionReasonStorageKey, semuaAlasan);
+
+    setTicket((prev) => ({
+      ...prev,
+      status: statusBaru,
+      alasanPenolakan: statusBaru === 'Selesai' ? '' : prev.alasanPenolakan,
+    }));
     setPesan(`Status diubah menjadi ${statusBaru}.`);
   };
 
@@ -183,7 +195,7 @@ export default function TeknisiTaskDetail() {
         <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="mb-2 text-xs font-semibold text-red-600">#{ticket.id}</p>
-            <h1 className="break-words text-2xl font-bold text-gray-800">{ticket.judul}</h1>
+            <h1 className="wrap-break-word text-2xl font-bold text-gray-800">{ticket.judul}</h1>
             <p className="mt-1 text-sm text-gray-500">Dilaporkan oleh {ticket.pelapor}</p>
           </div>
           <span className={`inline-flex w-fit shrink-0 rounded-full px-3 py-1.5 text-sm font-semibold ring-1 ring-inset ${getStatusStyle(ticket.status)}`}>
@@ -267,7 +279,17 @@ export default function TeknisiTaskDetail() {
       <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
         <h2 className="mb-3 text-lg font-bold text-gray-800">Status Tiket</h2>
 
-        {ticket.status === 'Diproses' ? (
+        {ticket.status === 'Diproses' && ticket.alasanPenolakan && (
+          <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <strong>Catatan admin:</strong> {ticket.alasanPenolakan}
+          </p>
+        )}
+
+        {ticket.status === 'Tervalidasi' ? (
+          <p className="rounded-lg bg-violet-50 px-4 py-3 text-sm font-medium text-violet-800">
+            Pekerjaan ini telah divalidasi oleh admin.
+          </p>
+        ) : ticket.status === 'Diproses' ? (
           <>
             <button
               type="button"

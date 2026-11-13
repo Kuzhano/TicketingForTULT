@@ -20,6 +20,7 @@ function formatTanggal(value) {
 }
 
 function getStatusStyle(status) {
+  if (status === 'Tervalidasi') return 'bg-violet-100 text-violet-800 ring-violet-200';
   if (status === 'Selesai') return 'bg-emerald-100 text-emerald-800 ring-emerald-200';
   if (status === 'Diproses') return 'bg-blue-100 text-blue-800 ring-blue-200';
   return 'bg-amber-100 text-amber-800 ring-amber-200';
@@ -152,7 +153,7 @@ export default function TicketTeknisi() {
                       </span>
                     )}
                   </div>
-                  <h3 className="break-words text-base font-semibold text-gray-800">{ticket.judul}</h3>
+                  <h3 className="wrap-break-word text-base font-semibold text-gray-800">{ticket.judul}</h3>
                   <p className="mt-1 text-sm text-gray-500">Dilaporkan oleh {ticket.pelapor}</p>
                 </div>
 
