@@ -2,14 +2,14 @@
 
 # Ticketing TULT
 
-**Sistem Pelaporan Kerusakan Fasilitas Gedung Telkom University Landmark Tower (TULT)**
+**Aplikasi pelaporan dan pemantauan kerusakan fasilitas Gedung Telkom University Landmark Tower (TULT)**
 
-Tugas Besar Mata Kuliah **Perancangan dan Pemrograman Web**
+Proyek Tugas Besar Mata Kuliah **Perancangan dan Pemrograman Web**  
 S1 Rekayasa Perangkat Lunak — Telkom University
 
-![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Dalam_Pengembangan-orange)
 
 </div>
@@ -18,121 +18,159 @@ S1 Rekayasa Perangkat Lunak — Telkom University
 
 ## Tentang Proyek
 
-**Ticketing TULT** adalah aplikasi web berbasis sistem tiket (*ticketing*) yang memudahkan civitas akademika untuk melaporkan kerusakan fasilitas di Gedung TULT, seperti AC mati, proyektor rusak, atau fasilitas ruangan lainnya.
+**Ticketing TULT** adalah aplikasi web untuk melaporkan kerusakan fasilitas dan memantau penanganan laporan sebagai tiket. Aplikasi menyediakan alur antarmuka untuk tiga peran: mahasiswa, teknisi, dan admin.
 
-Setiap laporan yang masuk akan tercatat sebagai tiket sehingga proses penanganannya dapat dipantau secara transparan, terstruktur, dan terdokumentasi dengan baik.
+Saat ini aplikasi menggunakan data JSON sebagai data awal dan `localStorage` sebagai penyimpanan simulasi di browser. Aplikasi belum terhubung ke backend atau database bersama.
 
-### Latar Belakang
+## Fitur
 
-Pelaporan kerusakan fasilitas yang dilakukan secara manual atau melalui pesan singkat sering kali sulit dilacak, tidak terdokumentasi, dan lambat ditindaklanjuti. Aplikasi ini dibuat untuk menjawab masalah tersebut dengan menyediakan satu platform terpusat untuk membuat, memantau, dan melihat riwayat laporan.
+### Mahasiswa
 
----
+- Login menggunakan akun contoh yang tersedia di `src/data/users.json`.
+- Melihat daftar tiket terbaru pada Dashboard atau memfilter tiket berdasarkan bulan dan tahun.
+- Membuat laporan dengan judul, lantai, teks ruangan bebas, deskripsi, serta foto bukti wajib.
+- Foto bukti menerima JPG, PNG, atau WebP, diperkecil sebelum disimpan, dan ditampilkan pada detail tiket.
+- Melihat dan mencari riwayat tiket milik akun mahasiswa yang sedang aktif.
+- Membuka detail tiket dan melihat status penanganannya.
 
-## Fitur Utama
+### Teknisi
 
-- **Beranda Laporan Publik** — menampilkan daftar keluhan fasilitas gedung TULT dari seluruh pengguna.
-- **Buat Laporan** — formulir pelaporan dengan judul, pilihan lantai, pilihan ruangan, deskripsi detail, dan unggah bukti kerusakan berupa gambar.
-- **Dropdown Bertingkat** — pilihan ruangan menyesuaikan lantai yang dipilih.
-- **Riwayat Tiket** — melihat seluruh tiket yang pernah dibuat.
-- **Detail Tiket** — melihat informasi lengkap dan status dari sebuah tiket.
-- **Profil Pengguna** — mengelola informasi akun pengguna.
+- Melihat tiket yang ditugaskan kepada akun teknisi pada halaman tugas perbaikan.
+- Membuka detail tugas, menambahkan catatan dan dokumentasi foto hasil perbaikan.
+- Mengubah status tiket dari **Diproses** menjadi **Selesai** setelah dokumentasi disimpan, atau membuka kembali tiket yang selesai.
 
-> **Catatan:** Proyek ini masih dalam tahap pengembangan. Beberapa fitur mungkin belum sepenuhnya tersedia.
+### Admin
 
----
+- Melihat ringkasan jumlah tiket berdasarkan status, bulan, dan tahun pada Dashboard.
+- Menugaskan tiket kepada teknisi melalui halaman Penugasan Teknisi.
 
-## Teknologi yang Digunakan
+### Umum
+
+- Profil menampilkan informasi dan statistik sesuai peran, serta menyediakan alur logout.
+- Halaman data menyediakan status loading, pesan error, dan opsi coba lagi pada proses pemuatan tertentu.
+- Layout responsif untuk desktop dan perangkat mobile.
+
+## Teknologi
 
 | Teknologi | Kegunaan |
 | --- | --- |
-| [React](https://react.dev/) | Library untuk membangun antarmuka pengguna |
-| [Vite](https://vitejs.dev/) | Build tool dan development server yang cepat |
-| [Tailwind CSS](https://tailwindcss.com/) | Framework CSS *utility-first* untuk styling |
-| [React Router](https://reactrouter.com/) | Pengaturan navigasi antarhalaman |
+| [React 19](https://react.dev/) | Antarmuka dan komponen |
+| [Vite 8](https://vite.dev/) | Development server dan build |
+| [Tailwind CSS 4](https://tailwindcss.com/) | Styling antarmuka |
+| [React Router 7](https://reactrouter.com/) | Routing aplikasi |
+| [Lucide React](https://lucide.dev/) | Ikon |
 
 ---
 
-## Instalasi dan Menjalankan Proyek
+## Menjalankan Aplikasi
 
 ### Prasyarat
 
-Pastikan perangkat Anda sudah terpasang:
+- Node.js yang didukung Vite 8 (Node.js `20.19+` atau `22.12+`).
+- npm.
+- Git.
 
-- [Node.js](https://nodejs.org/) versi 18 atau lebih baru
-- npm (sudah termasuk bersama Node.js) atau yarn/pnpm
-- Git
+### Instalasi
 
-### Langkah-langkah
+```bash
+git clone https://github.com/Kuzhano/TicketingForTULT.git
+cd TicketingForTULT
+npm install
+npm run dev
+```
 
-1. **Clone repositori**
+Buka URL yang ditampilkan Vite di terminal (umumnya `http://localhost:5173`).
 
-   ```bash
-   git clone https://github.com/<username>/<nama-repo>.git
-   cd <nama-repo>
-   ```
+### Perintah
 
-2. **Install dependensi**
-
-   ```bash
-   npm install
-   npm install react-router-dom lucide-react
-   npm install tailwindcss @tailwindcss/vite
-   ```
-
-3. **Jalankan development server**
-
-   ```bash
-   npm run dev
-   ```
-
-4. **Buka di browser**
-
-   Aplikasi dapat diakses melalui `http://localhost:5173`.
-
-### Perintah yang Tersedia
-
-| Perintah | Deskripsi |
+| Perintah | Kegunaan |
 | --- | --- |
-| `npm run dev` | Menjalankan aplikasi dalam mode pengembangan |
-| `npm run build` | Membuat build produksi ke folder `dist` |
-| `npm run preview` | Melihat hasil build produksi secara lokal |
-| `npm run lint` | Memeriksa kualitas kode dengan ESLint |
+| `npm run dev` | Menjalankan development server |
+| `npm run build` | Membuat build produksi ke `dist/` |
+| `npm run preview` | Menjalankan preview build produksi |
+| `npm run lint` | Memeriksa kode dengan ESLint |
 
 ---
 
-## Daftar Halaman
+## Halaman dan Rute
 
-| Halaman | Rute | Deskripsi |
+| Halaman | Rute | Akses / Kegunaan |
 | --- | --- | --- |
-| Beranda | `/` | Daftar laporan publik dari seluruh pengguna |
-| Buat Laporan | `/create` | Formulir pembuatan laporan kerusakan fasilitas |
-| Riwayat Tiket | `/history` | Riwayat tiket yang dibuat pengguna |
-| Detail Tiket | `/ticket` | Detail dan status sebuah tiket |
-| Profil | `/profile` | Informasi dan pengaturan akun |
+| Login | `/login` | Masuk menggunakan akun demo mahasiswa, teknisi, atau admin |
+| Dashboard | `/` | Dashboard ringkasan admin; daftar tiket terbaru untuk peran selain admin |
+| Buat Laporan | `/create` | Form pembuatan tiket untuk mahasiswa |
+| Riwayat Tiket | `/history` | Riwayat laporan mahasiswa yang sedang aktif |
+| Detail Tiket | `/ticket/:id` | Detail tiket dan status |
+| Profil | `/profile` | Informasi akun, statistik, dan logout |
+| Tugas Perbaikan | `/teknisi` | Daftar tiket teknisi |
+| Detail Tugas | `/teknisi/:id` | Dokumentasi pekerjaan dan pembaruan status teknisi |
+| Penugasan Teknisi | `/penugasan` | Penugasan tiket oleh admin |
+
+---
+
+## Data dan Penyimpanan
+
+### Data awal
+
+- `src/data/users.json` — akun demo dan perannya.
+- `src/data/tickets.json` — data awal tiket; memuat tiket contoh dari tahun 2025 dan 2026.
+- `src/data/claimedTickets.json` — contoh penugasan tiket kepada teknisi.
+
+### Simulasi penyimpanan browser
+
+`src/utils/api.js` menyediakan helper `fetchData` untuk membaca data JSON dan `postData` untuk mensimulasikan pembuatan tiket. Tiket baru tidak ditulis kembali ke file JSON; tiket dan perubahan operasional disimpan pada browser melalui `localStorage`.
+
+Key `localStorage` yang dipakai aplikasi:
+
+| Key | Isi |
+| --- | --- |
+| `activeUser` | Akun yang sedang digunakan |
+| `tult_tickets` | Tiket yang dibuat melalui aplikasi |
+| `tult_assignments` | Penugasan tiket oleh admin |
+| `tult_ticket_status` | Perubahan status tiket oleh admin/teknisi |
+| `tult_ticket_docs` | Catatan dan metadata dokumentasi teknisi |
+
+Data pada `localStorage` hanya tersedia di browser dan origin yang menyimpannya. Data tidak dibagikan antarperangkat atau pengguna browser. Foto bukti laporan disimpan sebagai data gambar di data tiket lokal; dokumentasi foto hasil perbaikan pada implementasi saat ini menyimpan nama file, bukan mengunggah berkas ke server.
+
+> **Catatan:** Akun pada `users.json` dan seluruh mekanisme penyimpanan merupakan data demo, bukan autentikasi atau penyimpanan produksi. Jangan menggunakan kredensial nyata.
+
+---
+
+## Struktur Proyek
+
+```text
+src/
+├── App.jsx                 # Deklarasi rute
+├── components/             # Layout, badge status, loading/error, toast
+├── data/                   # Data awal pengguna, tiket, dan penugasan
+├── hooks/                  # Hook pengelolaan data tiket
+├── pages/                  # Halaman mahasiswa, teknisi, dan admin
+├── utils/api.js            # Helper fetch dan mock penyimpanan tiket
+├── index.css               # Import Tailwind CSS
+└── main.jsx                # Entry point React
+```
 
 ---
 
 ## Anggota Kelompok
 
-**Kelompok:** `2tbnh`
-**Kelas:** `SE-48-02`
+**Kelompok:** `2tbnh`  
+**Kelas:** `SE-48-02`  
 **Dosen Pengampu:** `ARIO HARRY PRAYOGO`
 
-| No | Nama Lengkap | Peran |
-| :-: | --- | --- |
-| 1 | `Muhammad Farhan Abdillah` | ` ` |
-| 2 | `Nuraini Nafisa Zahira` | `Membuat Halaman Detail Tiket` |
-| 3 | `Wawan Saputra` | `Membuat Halaman Membuat Tiket/Laporan` |
-| 4 | `Moh. Dzaki Ayatillah` | `Membuat Layout dan Halaman Profil` |
-| 5 | `Keisya Salsyabila Putri Wibowo` | `Membuat Halaman Riwayat Tiket` |
+| No | Nama Lengkap |
+| :-: | --- |
+| 1 | `Muhammad Farhan Abdillah` |
+| 2 | `Nuraini Nafisa Zahira` |
+| 3 | `Wawan Saputra` |
+| 4 | `Moh. Dzaki Ayatillah` |
+| 5 | `Keisya Salsyabila Putri Wibowo` |
 
 ---
 
 ## Lisensi
 
 Proyek ini dibuat untuk keperluan akademik pada mata kuliah **Perancangan dan Pemrograman Web**, Program Studi S1 Rekayasa Perangkat Lunak, **Telkom University**.
-
----
 
 <div align="center">
 
