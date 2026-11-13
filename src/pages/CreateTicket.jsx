@@ -1,8 +1,76 @@
+
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Loader2, RefreshCw } from 'lucide-react';
 import ToastNotification from '../components/ToastNotification';
 import { fetchData, postData } from '../utils/api';
+
+function bacaFoto(file) {
+  return new Promise((resolve, reject) => {
+    if (!file) {
+      resolve(null);
+      return;
+    }
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      reject(new Error('Gunakan foto dengan format JPG, PNG, atau WebP.'));
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onerror = () => {
+      reject(new Error('Gagal membaca foto.'));
+    };
+
+    reader.onload = () => {
+      const gambar = new Image();
+
+      gambar.onerror = () => {
+        reject(new Error('Foto tidak dapat diproses.'));
+      };
+
+      gambar.onload = () => {
+        const canvas = document.createElement('canvas');
+        const skala = Math.min(
+          1,
+          1000 / Math.max(gambar.width, gambar.height)
+        );
+
+        canvas.width = Math.round(gambar.width * skala);
+        canvas.height = Math.round(gambar.height * skala);
+
+        const context = canvas.getContext('2d');
+
+        if (!context) {
+          reject(new Error('Gagal memproses foto.'));
+          return;
+        }
+
+        context.drawImage(
+          gambar,
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+
+        const hasil = canvas.toDataURL('image/jpeg', 0.65);
+
+        if (hasil.length > 1000000) {
+          reject(new Error('Foto terlalu besar untuk disimpan.'));
+          return;
+        }
+
+        resolve(hasil);
+      };
+
+      gambar.src = reader.result;
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function CreateTicket() {
   const navigate = useNavigate();
@@ -86,6 +154,8 @@ export default function CreateTicket() {
         throw new Error('Data pengguna aktif tidak ditemukan.');
       }
 
+      const gambarBukti = await bacaFoto(formData.bukti);
+
       await postData('tickets', {
         userId: latestUser.id,
         judul: formData.judul,
@@ -93,6 +163,7 @@ export default function CreateTicket() {
         ruangan: formData.ruangan,
         deskripsi: formData.deskripsi,
         namaFileBukti: formData.bukti ? formData.bukti.name : 'Tidak ada file',
+        gambarBukti,
         status: 'Menunggu',
         tanggal: new Date().toISOString().slice(0, 10)
       });
@@ -101,7 +172,9 @@ export default function CreateTicket() {
       setSubmissionSucceeded(true);
     } catch (error) {
       setSubmitError(
-        error instanceof Error ? error.message : 'Terjadi kesalahan saat mengirim laporan.'
+        error instanceof Error
+          ? error.message
+          : 'Terjadi kesalahan saat mengirim laporan.'
       );
     } finally {
       setIsSubmitting(false);

@@ -1,37 +1,32 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import urlTiket from '../data/tickets.json?url';
+import { fetchData } from '../utils/api';
 
-const KUNCI_TIKET = 'tickets';
-const KUNCI_TIKET_LAMA = 'tult_tickets';
-const KUNCI_STATUS = 'statusTiket';
+const KUNCI_TIKET = 'tult_tickets';
+const KUNCI_TIKET_LAMA = 'tickets';
+const KUNCI_STATUS = 'tult_ticket_status';
+const KUNCI_STATUS_LAMA = 'statusTiket';
 
 function bacaStorage(kunci, nilaiAwal) {
   try {
-    const data = JSON.parse(localStorage.getItem(kunci));
-    return data ?? nilaiAwal;
+    return JSON.parse(localStorage.getItem(kunci)) ?? nilaiAwal;
   } catch {
     return nilaiAwal;
   }
 }
 
-function hapusDuplikat(daftarTiket) {
-  const idSudahAda = new Set();
+function hapusDuplikat(daftar) {
+  const data = new Map();
 
-  return daftarTiket.filter((tiket) => {
-    if (!tiket || tiket.id === undefined) {
-      return false;
+  daftar.forEach((tiket) => {
+    if (!tiket || tiket.id === undefined || tiket.id === null) {
+      return;
     }
 
-    const id = String(tiket.id);
-
-    if (idSudahAda.has(id)) {
-      return false;
-    }
-
-    idSudahAda.add(id);
-    return true;
+    data.set(String(tiket.id), tiket);
   });
+
+  return [...data.values()];
 }
 
 export default function useTickets() {
@@ -44,50 +39,43 @@ export default function useTickets() {
     setError('');
 
     try {
-      const response = await fetch(urlTiket, {
-        cache: 'no-store',
-      });
-
-      if (!response.ok) {
-        throw new Error('Gagal mengambil data tiket.');
-      }
-
-      const dataApi = await response.json();
+      const dataApi = await fetchData('tickets');
 
       if (!Array.isArray(dataApi)) {
         throw new Error('Format data tiket tidak valid.');
       }
 
-      const tiketBaru = bacaStorage(KUNCI_TIKET, []);
-      const tiketLama = bacaStorage(KUNCI_TIKET_LAMA, []);
-      const statusTersimpan = bacaStorage(KUNCI_STATUS, {});
+      const dataLokal = bacaStorage(KUNCI_TIKET, []);
+      const dataLama = bacaStorage(KUNCI_TIKET_LAMA, []);
 
-      const tiketLokal = hapusDuplikat([
-        ...(Array.isArray(tiketBaru) ? tiketBaru : []),
-        ...(Array.isArray(tiketLama) ? tiketLama : []),
-      ]);
-
-      tiketLokal.reverse();
+      const statusTeknisi = bacaStorage(KUNCI_STATUS, {});
+      const statusLama = bacaStorage(KUNCI_STATUS_LAMA, {});
 
       const semuaTiket = hapusDuplikat([
-        ...tiketLokal,
         ...dataApi,
+        ...(Array.isArray(dataLama) ? dataLama : []),
+        ...(Array.isArray(dataLokal) ? dataLokal : []),
       ]);
 
-      const hasil = semuaTiket.map((tiket) => ({
-        ...tiket,
-        status:
-          statusTersimpan[String(tiket.id)] ||
-          tiket.status ||
-          'Menunggu',
-      }));
+      const hasil = semuaTiket.map((tiket) => {
+        const id = String(tiket.id);
+
+        return {
+          ...tiket,
+          status:
+            statusTeknisi[id] ||
+            statusLama[id] ||
+            tiket.status ||
+            'Menunggu',
+        };
+      });
 
       setTickets(hasil);
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
-          : 'Terjadi kesalahan saat memuat tiket.'
+          : 'Terjadi kesalahan saat memuat data tiket.'
       );
     } finally {
       setLoading(false);
@@ -99,62 +87,46 @@ export default function useTickets() {
 
     const saatStorageBerubah = (event) => {
       if (
-        event.key === KUNCI_TIKET ||
-        event.key === KUNCI_TIKET_LAMA ||
-        event.key === KUNCI_STATUS
+        event.key === null ||
+        [
+          KUNCI_TIKET,
+          KUNCI_TIKET_LAMA,
+          KUNCI_STATUS,
+          KUNCI_STATUS_LAMA,
+        ].includes(event.key)
       ) {
         reload();
       }
     };
 
-    window.addEventListener(
-      'storage',
-      saatStorageBerubah
-    );
+    window.addEventListener('storage', saatStorageBerubah);
 
     return () => {
-      window.removeEventListener(
-        'storage',
-        saatStorageBerubah
-      );
+      window.removeEventListener('storage', saatStorageBerubah);
     };
   }, [reload]);
 
   function ubahStatus(id, statusBaru) {
-    const statusValid = [
-      'Menunggu',
-      'Diproses',
-      'Selesai',
-    ];
-
-    if (!statusValid.includes(statusBaru)) {
-      return false;
-    }
-
-    const tiket = tickets.find(
-      (item) => String(item.id) === String(id)
-    );
-
-    if (!tiket) {
-      return false;
-    }
-
     const alurStatus = {
       Menunggu: 'Diproses',
       Diproses: 'Selesai',
     };
 
-    if (alurStatus[tiket.status] !== statusBaru) {
+    const tiket = tickets.find(
+      (item) => String(item.id) === String(id)
+    );
+
+    if (!tiket || alurStatus[tiket.status] !== statusBaru) {
       return false;
     }
 
     try {
-      const statusLama = bacaStorage(KUNCI_STATUS, {});
+      const statusTersimpan = bacaStorage(KUNCI_STATUS, {});
 
       localStorage.setItem(
         KUNCI_STATUS,
         JSON.stringify({
-          ...statusLama,
+          ...statusTersimpan,
           [String(id)]: statusBaru,
         })
       );

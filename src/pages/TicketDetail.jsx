@@ -1,7 +1,8 @@
 
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { CalendarDays } from 'lucide-react';
+import { CalendarDays, Image as ImageIcon } from 'lucide-react';
+
 import { fetchData } from '../utils/api';
 import useTickets from '../hooks/useTickets';
 import StatusBadge from '../components/StatusBadge';
@@ -25,18 +26,18 @@ function formatTanggal(value) {
 
 function keteranganStatus(status) {
   if (status === 'Menunggu') {
-    return 'Laporan sudah diterima dan menunggu penanganan teknisi.';
+    return 'Laporan sudah diterima dan sedang menunggu penanganan teknisi.';
   }
 
   if (status === 'Diproses') {
-    return 'Laporan sedang ditangani oleh teknisi.';
+    return 'Laporan sedang dalam proses penanganan oleh teknisi.';
   }
 
   if (status === 'Selesai') {
     return 'Kerusakan telah selesai ditangani oleh teknisi.';
   }
 
-  return 'Status laporan belum tersedia.';
+  return 'Informasi perkembangan laporan belum tersedia.';
 }
 
 function ambilGambar(tiket) {
@@ -61,8 +62,13 @@ export default function TicketDetail() {
   const [currentUser, setCurrentUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
   const [errorUser, setErrorUser] = useState('');
-
   const [lihatFoto, setLihatFoto] = useState(false);
+
+  const dariTeknisi = location.state?.from === 'teknisi';
+
+  const halamanKembali = dariTeknisi
+    ? '/teknisi'
+    : '/history';
 
   useEffect(() => {
     let aktif = true;
@@ -79,6 +85,7 @@ export default function TicketDetail() {
         }
 
         const savedUserValue = localStorage.getItem('activeUser');
+
         const savedUser = savedUserValue
           ? JSON.parse(savedUserValue)
           : null;
@@ -117,19 +124,13 @@ export default function TicketDetail() {
     };
   }, []);
 
-  const dariTeknisi = location.state?.from === 'teknisi';
+  useEffect(() => {
+    setLihatFoto(false);
+  }, [id]);
 
-  const halamanKembali = dariTeknisi
-    ? '/teknisi'
-    : '/history';
-
-  const tiketSesuaiId = tickets.find(
+  const tiket = tickets.find(
     (item) => String(item.id) === String(id)
   );
-
-  const tiket =
-    tiketSesuaiId ||
-    (String(id) === '1' ? tickets[0] : null);
 
   const bolehMelihat =
     currentUser?.role !== 'mahasiswa' ||
@@ -149,12 +150,12 @@ export default function TicketDetail() {
     <section className="max-w-3xl mx-auto">
       <Link
         to={halamanKembali}
-        className="inline-block text-sm text-red-600 hover:underline mb-4"
+        className="inline-flex items-center text-sm font-medium text-red-600 hover:underline mb-5"
       >
         &larr;{' '}
         {dariTeknisi
           ? 'Kembali ke Daftar Teknisi'
-          : 'Kembali ke Riwayat'}
+          : 'Kembali ke Riwayat Tiket'}
       </Link>
 
       <LoadingError
@@ -172,20 +173,20 @@ export default function TicketDetail() {
       {!sedangMemuat && !pesanError && !tiketDitampilkan && (
         <div
           role="alert"
-          className="bg-white border border-gray-200 rounded-xl p-6 text-center"
+          className="bg-white border border-gray-200 rounded-xl p-8 text-center"
         >
-          <h2 className="text-xl font-bold text-gray-800 mb-2">
+          <h2 className="text-xl font-bold text-gray-800 mb-3">
             Tiket Tidak Ditemukan
           </h2>
 
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 mb-5">
             Tiket tidak tersedia atau tidak dapat diakses
             oleh akun yang sedang digunakan.
           </p>
 
           <Link
             to={halamanKembali}
-            className="text-red-600 hover:underline"
+            className="text-red-600 font-medium hover:underline"
           >
             Kembali
           </Link>
@@ -193,39 +194,40 @@ export default function TicketDetail() {
       )}
 
       {!sedangMemuat && !pesanError && tiketDitampilkan && (
-        <article className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 sm:p-6">
-          <header className="flex flex-wrap justify-between items-start gap-3 mb-6">
-            <div>
-              <p className="text-sm font-semibold text-red-600 mb-2">
-                #{tiketDitampilkan.id}
-              </p>
+        <article className="bg-white border border-gray-200 rounded-xl shadow-sm p-5 sm:p-6">
+          <header className="mb-6">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-red-600 mb-2">
+                  #{tiketDitampilkan.id}
+                </p>
 
-              <h1 className="text-2xl font-bold text-gray-800">
-                {tiketDitampilkan.judul || 'Tanpa Judul'}
-              </h1>
+                <h1 className="text-2xl font-bold text-gray-800 break-words">
+                  {tiketDitampilkan.judul || 'Tanpa Judul'}
+                </h1>
 
-              <p className="flex items-center gap-2 text-sm text-gray-500 mt-3">
-                <CalendarDays size={16} />
-                Dibuat pada{' '}
-                {formatTanggal(tiketDitampilkan.tanggal)}
-              </p>
+                <p className="flex items-center gap-2 text-sm text-gray-500 mt-3">
+                  <CalendarDays size={16} />
+                  Dibuat pada {formatTanggal(tiketDitampilkan.tanggal)}
+                </p>
+              </div>
+
+              <StatusBadge status={tiketDitampilkan.status} />
             </div>
-
-            <StatusBadge status={tiketDitampilkan.status} />
           </header>
 
           <section
             aria-labelledby="judul-perkembangan"
-            className="bg-red-50 border border-red-100 rounded-lg p-4 mb-6"
+            className="bg-red-50 border border-red-100 rounded-xl p-4 mb-6"
           >
             <h2
               id="judul-perkembangan"
-              className="font-semibold text-gray-800 mb-3"
+              className="font-bold text-gray-800 mb-3"
             >
               Perkembangan Laporan
             </h2>
 
-            <div className="flex flex-wrap items-center gap-3 mb-2">
+            <div className="flex flex-wrap items-center gap-3 mb-3">
               <span className="text-sm text-gray-700">
                 Status saat ini:
               </span>
@@ -238,117 +240,141 @@ export default function TicketDetail() {
             </p>
           </section>
 
-          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <dt className="text-sm font-semibold mb-1">
-                Lantai
-              </dt>
+          <section aria-labelledby="judul-informasi">
+            <h2
+              id="judul-informasi"
+              className="font-bold text-gray-800 mb-4"
+            >
+              Informasi Laporan
+            </h2>
 
-              <dd className="border border-gray-200 rounded-lg p-3">
-                {tiketDitampilkan.lantai || '-'}
-              </dd>
-            </div>
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <dt className="text-sm font-semibold text-gray-700 mb-2">
+                  Lantai
+                </dt>
 
-            <div>
-              <dt className="text-sm font-semibold mb-1">
-                Ruangan
-              </dt>
+                <dd className="border border-gray-200 rounded-lg px-3 py-3">
+                  {tiketDitampilkan.lantai || '-'}
+                </dd>
+              </div>
 
-              <dd className="border border-gray-200 rounded-lg p-3">
-                {tiketDitampilkan.ruangan || '-'}
-              </dd>
-            </div>
+              <div>
+                <dt className="text-sm font-semibold text-gray-700 mb-2">
+                  Ruangan
+                </dt>
 
-            <div className="sm:col-span-2">
-              <dt className="text-sm font-semibold mb-1">
-                Deskripsi Kerusakan
-              </dt>
+                <dd className="border border-gray-200 rounded-lg px-3 py-3 break-words">
+                  {tiketDitampilkan.ruangan || '-'}
+                </dd>
+              </div>
 
-              <dd className="border border-gray-200 rounded-lg p-3 whitespace-pre-wrap">
-                {tiketDitampilkan.deskripsi || 'Tidak ada deskripsi.'}
-              </dd>
-            </div>
+              <div className="sm:col-span-2">
+                <dt className="text-sm font-semibold text-gray-700 mb-2">
+                  Deskripsi Kerusakan
+                </dt>
 
-            <div className="sm:col-span-2">
-              <dt className="text-sm font-semibold mb-2">
-                Bukti Kerusakan
-              </dt>
+                <dd className="border border-gray-200 rounded-lg p-3 whitespace-pre-wrap">
+                  {tiketDitampilkan.deskripsi ||
+                    'Tidak ada deskripsi.'}
+                </dd>
+              </div>
 
-              <dd className="border border-gray-200 rounded-lg p-3">
-                {gambar ? (
-                  <div>
-                    <button
-                      type="button"
-                      onClick={() => setLihatFoto(true)}
-                      className="inline-block text-left"
-                      aria-label={`Perbesar foto ${tiketDitampilkan.judul}`}
-                    >
-                      <img
-                        src={gambar}
-                        alt={`Foto kerusakan ${tiketDitampilkan.judul}`}
-                        className="w-full max-w-md max-h-80 object-contain rounded-lg border hover:opacity-90"
+              <div className="sm:col-span-2">
+                <dt className="text-sm font-semibold text-gray-700 mb-2">
+                  Bukti Kerusakan
+                </dt>
+
+                <dd className="border border-gray-200 rounded-lg p-4">
+                  {gambar ? (
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => setLihatFoto(true)}
+                        className="text-left rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                        aria-label={`Lihat foto kerusakan ${tiketDitampilkan.judul}`}
+                      >
+                        <img
+                          src={gambar}
+                          alt={`Foto kerusakan ${tiketDitampilkan.judul}`}
+                          className="w-full max-w-md max-h-80 object-contain rounded-lg border border-gray-200 hover:opacity-90"
+                        />
+
+                        <span className="block mt-2 text-sm font-medium text-red-600">
+                          Lihat Foto
+                        </span>
+                      </button>
+
+                      <p className="mt-3 text-sm text-gray-500 break-all">
+                        {tiketDitampilkan.namaFileBukti ||
+                          'Foto kerusakan'}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex items-start gap-3">
+                      <ImageIcon
+                        size={22}
+                        className="text-gray-400 shrink-0"
                       />
 
-                      <span className="block text-sm text-red-600 mt-2">
-                        Lihat Foto
-                      </span>
-                    </button>
+                      <div>
+                        <p className="text-sm text-gray-700 break-all">
+                          {tiketDitampilkan.namaFileBukti ||
+                            'Tidak ada foto'}
+                        </p>
 
-                    <p className="text-sm text-gray-500 mt-2 break-all">
-                      {tiketDitampilkan.namaFileBukti ||
-                        'Foto kerusakan'}
-                    </p>
-                  </div>
-                ) : (
-                  <div>
-                    <p className="text-gray-700 break-all">
-                      {tiketDitampilkan.namaFileBukti ||
-                        'Tidak ada foto'}
-                    </p>
-
-                    <p className="text-xs text-gray-500 mt-2">
-                      {tiketDitampilkan.namaFileBukti &&
-                      tiketDitampilkan.namaFileBukti !== 'Tidak ada file'
-                        ? 'Foto pada laporan ini belum tersimpan sebagai gambar.'
-                        : 'Belum ada foto bukti kerusakan.'}
-                    </p>
-                  </div>
-                )}
-              </dd>
-            </div>
-          </dl>
+                        <p className="text-xs text-gray-500 mt-2">
+                          {tiketDitampilkan.namaFileBukti &&
+                          tiketDitampilkan.namaFileBukti !==
+                            'Tidak ada file'
+                            ? 'File bukti tercatat, tetapi gambar belum tersedia untuk ditampilkan.'
+                            : 'Belum ada foto bukti kerusakan.'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </dd>
+              </div>
+            </dl>
+          </section>
 
           <footer className="mt-6 pt-4 border-t border-gray-100">
             <p className="text-xs text-gray-500">
-              Status laporan diperbarui berdasarkan
-              tindakan teknisi.
+              Status laporan mengikuti perkembangan penanganan
+              yang dicatat oleh teknisi.
             </p>
           </footer>
         </article>
       )}
 
-      {lihatFoto && gambar && (
+      {lihatFoto && gambar && tiketDitampilkan && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4"
+          className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4"
           onClick={() => setLihatFoto(false)}
           role="presentation"
         >
           <div
             role="dialog"
             aria-modal="true"
-            aria-label="Foto bukti kerusakan"
-            className="w-full max-w-3xl rounded-xl bg-white p-4"
+            aria-label="Preview bukti kerusakan"
+            className="bg-white rounded-xl p-4 sm:p-5 max-w-3xl w-full shadow-xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex items-center justify-between gap-3 mb-4">
-              <h2 className="font-bold text-gray-800">
-                Bukti Kerusakan
-              </h2>
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <h2 className="font-bold text-gray-800 text-lg">
+                  Bukti Kerusakan
+                </h2>
+
+                <p className="text-sm text-gray-600 mt-1">
+                  {tiketDitampilkan.judul}
+                </p>
+              </div>
 
               <button
                 type="button"
                 onClick={() => setLihatFoto(false)}
-                className="bg-red-600 text-white rounded-lg px-4 py-2"
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
               >
                 Tutup
               </button>
@@ -356,8 +382,8 @@ export default function TicketDetail() {
 
             <img
               src={gambar}
-              alt={`Bukti kerusakan ${tiketDitampilkan?.judul}`}
-              className="w-full max-h-[70vh] object-contain rounded-lg"
+              alt={`Bukti kerusakan ${tiketDitampilkan.judul}`}
+              className="w-full max-h-[70vh] object-contain rounded-lg bg-gray-100"
             />
           </div>
         </div>
